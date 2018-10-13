@@ -1,9 +1,9 @@
 all: who
 
-who: who3.o utmplib.o logout_tty.o
-	gcc who3.o utmplib.o logout_tty.o -o who.out
+who: who.o utmplib.o logout_tty.o
+	gcc who.o utmplib.o logout_tty.o -o who.out
 
-who3.o: who3.c
+who3.o: who.c
 	gcc -c who3.c
 
 utmplib.o: utmplib.c
