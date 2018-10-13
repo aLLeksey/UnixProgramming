@@ -24,9 +24,9 @@ struct utmp * utmp_next(){
     return NULLUT;
   recp = (struct utmp *) &utmpbuf[cur_rec * UTSIZE];
   cur_rec++;
-  if (recp -> ut_type ==  DEAD_PROCESS){
-    return utmp_next;
-  }
+  //if (recp -> ut_type ==  DEAD_PROCESS){
+  //  return utmp_next;
+  // }
   return recp;
 }
 int utmp_reload(){
