@@ -12,14 +12,20 @@
 
 // /var/run/utmp
 // /var/log/wtmp
+// /var/log/btmp
 
 void show_info(struct utmp* utbufp);
 void showtime(long timeval);
 
+void print_time_end(long timeval);
+void print_time_diff(long t1, long t2);
+
 int main(int argc, char **argv)
 
 {
-  struct utmp current_record;
+  struct utmp current;
+  struct utmp next;
+  struct utmp *c,*n,*t;
   int fd;
 
   // open file
@@ -37,41 +43,56 @@ int main(int argc, char **argv)
   
   //start reading
   
-  int reclen = sizeof(current_record);
+  int reclen = sizeof(current);
+
+  long prev = 0;
+  c = &current;
+  n = &next;
+
+  if (read (fd,c,reclen)!= reclen){
+    return 0;
+  }  
+  while (1){       
+    show_info(c);
+    if (read (fd,n,reclen) == reclen){
+      print_time_end(n->ut_time);
+      print_time_diff(c->ut_time, n->ut_time);
+      t = c;
+      c = n;
+      n = t;  
+    }
+    else{
+      printf("  still running");
+      break;
+    }
+  }
   
-  while (read (fd, &current_record,reclen) == reclen)
-    show_info(&current_record);
+  
   close(fd);
+
+
+  
   return 0;
 }
 
 void show_info(struct utmp* utbufp){
 
+  if( utbufp->ut_host == NULL || *utbufp->ut_host == '\0'){
+    return;
+  }
   
-  printf("%-3.3d", utbufp->ut_type);
-  printf(" ");
   
-  // printf("%4d", utbufp->ut_pid);
-  //printf(" ");
-
   
-  printf("%-3.3s", utbufp->ut_id); //terminal suffix
+               printf("%-3.3s", utbufp->ut_id); //terminal suffix
   printf(" ");
   
   printf("%-3d", utbufp->ut_session);
   printf(" ");
-/*
-  struct passwd * pwd = getpwuid(utbufp->ut_pid);
-  if (pwd != NULL){
-  char * name = pwd -> pw_name;
-  printf("%-8.8s",name);
-  }
-  else {
-    printf("%.*",8,'0');
-  }
-*/
 
-	printf("%-8.8s", utbufp->ut_host); 
+
+  printf("%-8.8s", utbufp->ut_host);
+  // print(utbufp -> ut_host);
+  // printf("%p", utbufp->ut_host);
   printf(" ");
 	
   
@@ -88,69 +109,25 @@ void show_info(struct utmp* utbufp){
   showtime(utbufp->ut_time);
   printf(" ");
 
-  printf("\n");
+  //printf("\n");
   
 }
 
 void showtime(long timeval){
   char *cp;
   cp = ctime(&timeval);
-  printf("%12.12s", cp + 4);
-  
+  printf("%16.16s", cp);
 }
 
-/*
-long  count(int fd,int *OK ){
-
-  struct utmp current={0};
-  
-  int reclen = sizeof(current);
-  
-  
-  //find first == 0 => drop
-  //find first !=0
-  //find first == 0;
-  //substract time;
-  // enjoy))
-
-  //0
-  //x
-  //0
-
-  
-  
-  // 0
-  while (1){
-    int r = read (fd, &current,reclen);
-    if (!r){
-      *OK = -1;
-      return 0;
-    }
-    if (current.ut_type != 0){
-      break;
-    }
-  }
-  // x
-  // first != 0
-  long t1 = current.ut_time;
-  
-  while (1){
-    int r = read (fd, &current,reclen);
-    if (!r){
-      long t2 = (long int)time(NULL);
-      *OK = -1;
-      return t2 - t1;
-    }
-  // 0
-    if (current.ut_type == 0){
-      break;
-    }
-  }
-
-  // X 0
-  // |-^ => t = 0 - X
-  long t2 = current.ut_time;
-  // [t2;t1)
-  return t2 - t1;
+void print_time_end(long timeval){
+  char *cp;
+  cp = ctime(&timeval);
+  printf(" - %5.5s", cp + 12);
 }
-*/
+void print_time_diff(long t1, long t2){
+  long diff = t2 - t1;
+  long h = diff / 3600;
+  diff = diff % 3600;
+  int min = diff / 60;
+  printf("%2.2ld:%2.2d\n", h, min);
+}
