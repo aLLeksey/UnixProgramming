@@ -46,9 +46,10 @@ int main(int argc, char **argv)
 }
 
 void show_info(struct utmp* utbufp){
-  //decode
-  // printf("%2d", utbufp->ut_type);
-  // printf(" ");
+
+  
+  printf("%-3.3d", utbufp->ut_type);
+  printf(" ");
   
   // printf("%4d", utbufp->ut_pid);
   //printf(" ");
