@@ -58,8 +58,9 @@ void show_info(struct utmp* utbufp){
   printf("%-3.3s", utbufp->ut_id); //terminal suffix
   printf(" ");
   
-  //printf("%-3d %3d", utbufp->ut_exit.e_termination,utbufp->ut_exit.e_exit);
-  //printf(" ");
+  printf("%-3d", utbufp->ut_session);
+  printf(" ");
+/*
   struct passwd * pwd = getpwuid(utbufp->ut_pid);
   if (pwd != NULL){
   char * name = pwd -> pw_name;
@@ -68,8 +69,11 @@ void show_info(struct utmp* utbufp){
   else {
     printf("%.*",8,'0');
   }
-  
+*/
 
+	printf("%-8.8s", utbufp->ut_host); 
+  printf(" ");
+	
   
   printf("%-8.8s", utbufp->ut_name); 
   printf(" ");
@@ -85,6 +89,7 @@ void show_info(struct utmp* utbufp){
   printf(" ");
 
   printf("\n");
+  
 }
 
 void showtime(long timeval){
