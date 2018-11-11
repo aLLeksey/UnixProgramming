@@ -61,17 +61,17 @@ void show_info(struct utmp* utbufp){
   printf(" ");
 
   
-  printf("-%3.3s", utbufp->ut_id);
+  printf("%-3.3s", utbufp->ut_id);
   printf(" ");
   
-  printf("-%3d %3d", utbufp->ut_exit.e_termination,
+  printf("%-3d %3d", utbufp->ut_exit.e_termination,
 	 utbufp->ut_exit.e_exit);
   printf(" ");
   
-  printf("-%8.8s", utbufp->ut_name);
+  printf("%-8.8s", utbufp->ut_name);
   printf(" ");
 
-  printf("-%8.8s", utbufp->ut_line);
+  printf("%-8.8s", utbufp->ut_line);
   printf(" ");
 
   showtime(utbufp->ut_time);
