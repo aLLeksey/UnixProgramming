@@ -2,14 +2,31 @@
 #include<stdio.h>
 #include<unistd.h>
 #include<stdlib.h>
+#include<string.h>
 int print_lines(const char* FILE_NAME, int cnt);
 int print_bytes(const char *FILE_NAME, int cnt);
 int rev_print(FILE *f, int cnt);
 void print_c(char c, int times);
 void run(int first_file, int last_file,const char * argv[],int cnt, int type);
 
-#define min(a,b) (((a)<(b))?(a):(b))
+typedef struct my_list{
+  long long key;
+  long long val;
+  struct my_list * next;
+}list;
 
+
+list* find(list *l, long long key);
+void add_node(list** l,list *node);
+
+#define min(a,b) (((a)<(b))?(a):(b))
+#define TEST
+#ifdef TEST
+#define H_SIZE 11 // for testing
+#else
+#define H_SIZE  1000003 //prime > 1E6;
+#endif
+ 
 
 int main(int argc, char* argv[]){
   if(argc <= 1){
@@ -113,13 +130,85 @@ void run(int first_file, int last_file,const char * argv[], int cnt, int type ){
 int* map_lines(FILE * f){
   // line_number -> file_location
   // TODO  hash
-  
-  // N = ??? //prime
-  typedef struct my_list{
-    int val;
-    my_list next;
-  }list;
+  fseek(f,0,SEEK_END);
+  long long N = ftell(f);
+  if(N <= 1E6){// array, no HASH
+    //mallock
+  }
+  else{//HASH
 
-  mylist* [N];//Mallock?
+  }
+}
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+// Work with HASH functions
+/////////////////////////////////////////////////////////////////////
+/*
+typedef struct my_list{
+  long long key;
+  long long val;
+  struct my_list * next;
+}list;
+*/
+
+list* HASH[H_SIZE];
+
+void make_hash(){ // N prime > 1E6
+}
+void put(long long key, long long  val){
+  long long k = key % H_SIZE;
+  list * l = malloc(sizeof(list));
+  memset(l,0,sizeof(list));
+  l->key = key;
+  l->val = val;
+  if(HASH[k] == 0){
+    HASH[k] = l;
+  }
+  else{
+    add_node(HASH+k,l);
+  }
+}
+int get(long long  key){
+  long long k = key % H_SIZE;
+  list *l = find(HASH[k],key);
+  if(l == NULL){
+    return -1;
+  }
+  return l->val;
   
+}
+
+list* find(list *l, long long key){
+  while(l!=NULL){
+    if(key == l->key){
+      return l;
+    }
+    l=l->next;
+  }
+  return NULL;
+}
+void add_node(list** l,list *node){
+  while((*l)->next!=NULL){
+    *l = (*l)->next;
+  }
+  (*l)->next = node;
+}
+ 
+void delete(){
+  for(int i = 0; i< H_SIZE;i++){
+    list*l = HASH[i];
+    while(l != NULL){
+      list*t=l;
+      l=l->next;
+      free(l);
+    }
+  }
+}
+
+void init(){
+  memset(HASH,0,H_SIZE*sizeof(HASH[0]));
+}
+
+
+ 
   
