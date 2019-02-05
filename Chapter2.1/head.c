@@ -146,21 +146,45 @@ void run(int first_file, int last_file,const char * argv[], int cnt, int type ){
 
 int *map = 0;
 
-int* map_lines(FILE * f){
+void map_lines(FILE * f){
   // line_number -> file_location
   // TODO  hash
   fseek(f,0,SEEK_END);
   long long N = ftell(f);
+  fseek(f,0,SEEK_CUR);
   if(N <= 1E6){// array, no HASH
     IS_HASH = 0;
     map = malloc(N*sizeof(long));
-    //malloc
+    int k = 0;
+    int c;
+    while((c = next_line(f))!=-1){
+      map[k] = c;
+      k++;
+    }
     
   }
   else{//HASH
     IS_HASH = 1;
+    int k = 0;
+    int c;
+    while((c = next_line(f))!=-1){
+      put(k,c);
+      k++;
+    }
   }
 }
+int next_line(FILE* f){
+  char c = fgetc(f);
+  if(c == EOF){
+    return -1;
+  }
+  else
+    return ftell(f);
+}
+
+
+
+
 
 long long in_file(long long line_num){
   if(IS_HASH){
