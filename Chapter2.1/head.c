@@ -7,7 +7,12 @@ int print_lines(const char* FILE_NAME, int cnt);
 int print_bytes(const char *FILE_NAME, int cnt);
 int rev_print(FILE *f, int cnt);
 void print_c(char c, int times);
-void run(int first_file, int last_file,const char * argv[],int cnt, int type);
+void run(int first_file, int last_file,const char * argv[],int cnt, int type );
+
+
+int IS_HASH = 0;
+
+
 
 typedef struct my_list{
   long long key;
@@ -16,11 +21,17 @@ typedef struct my_list{
 }list;
 
 
+
 list* find(list *l, long long key);
-void add_node(list** l,list *node);
+void add_node(list* l,list *node);
+void put(long long key, long long  val);
+long long get(long long  key);
+void init();
+void delete();
 
 #define min(a,b) (((a)<(b))?(a):(b))
-#define TEST
+//#define TEST
+
 #ifdef TEST
 #define H_SIZE 11 // for testing
 #else
@@ -29,8 +40,16 @@ void add_node(list** l,list *node);
  
 
 int main(int argc, char* argv[]){
+  //parse(argc,argv);
+  init();
+  
+  delete();
+  return 0;
+}
+
+void parse(int argc, char **argv){
   if(argc <= 1){
-    return 0;
+    return;
   }
   int oc;
   char *n_arg = 0;
@@ -60,7 +79,6 @@ int main(int argc, char* argv[]){
   if(optind<argc){
     run(optind,argc,argv,k,type);
   }
-  return 0;
 }
 
 int print_bytes(const char *FILE_NAME, int cnt){
@@ -126,6 +144,7 @@ void run(int first_file, int last_file,const char * argv[], int cnt, int type ){
   }
 }
 
+int *map = 0;
 
 int* map_lines(FILE * f){
   // line_number -> file_location
@@ -133,12 +152,30 @@ int* map_lines(FILE * f){
   fseek(f,0,SEEK_END);
   long long N = ftell(f);
   if(N <= 1E6){// array, no HASH
-    //mallock
+    IS_HASH = 0;
+    map = malloc(N*sizeof(long));
+    //malloc
+    
   }
   else{//HASH
-
+    IS_HASH = 1;
   }
 }
+
+long long in_file(long long line_num){
+  if(IS_HASH){
+    return get(line_num);
+  }
+  else{
+    return map[line_num];
+  }
+}
+  
+
+
+
+
+
 //////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 // Work with HASH functions
@@ -161,16 +198,19 @@ void put(long long key, long long  val){
   memset(l,0,sizeof(list));
   l->key = key;
   l->val = val;
+  l->next = NULL;
   if(HASH[k] == 0){
     HASH[k] = l;
   }
   else{
-    add_node(HASH+k,l);
+    add_node(HASH[k],l);
   }
 }
-int get(long long  key){
+long long get(long long  key){
   long long k = key % H_SIZE;
   list *l = find(HASH[k],key);
+  if(HASH[k] != 0){
+  }
   if(l == NULL){
     return -1;
   }
@@ -181,21 +221,22 @@ int get(long long  key){
 list* find(list *l, long long key){
   while(l!=NULL){
     if(key == l->key){
-      return l;
+       return l;
     }
     l=l->next;
   }
   return NULL;
 }
-void add_node(list** l,list *node){
-  while((*l)->next!=NULL){
-    *l = (*l)->next;
+
+void add_node(list* l,list *node){
+  while(l->next != NULL){
+    l = l->next;
   }
-  (*l)->next = node;
+  l->next=node;
 }
  
 void delete(){
-  for(int i = 0; i< H_SIZE;i++){
+  for(int i = 0; i < H_SIZE;i++){
     list*l = HASH[i];
     while(l != NULL){
       list*t=l;
