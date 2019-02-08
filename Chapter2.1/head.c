@@ -3,6 +3,8 @@
 #include<unistd.h>
 #include<stdlib.h>
 #include<string.h>
+#include <fcntl.h>
+
 int print_lines(const char* FILE_NAME, int cnt);
 int print_bytes(const char *FILE_NAME, int cnt);
 int rev_print(FILE *f, int cnt);
@@ -10,9 +12,7 @@ void print_c(char c, int times);
 void run(int first_file, int last_file,const char * argv[],int cnt, int type );
 
 
-int IS_HASH = 0;
-
-
+long long SIZE = 0;
 
 typedef struct my_list{
   long long key;
@@ -24,10 +24,15 @@ typedef struct my_list{
 
 list* find(list *l, long long key);
 void add_node(list* l,list *node);
-void put(long long key, long long  val);
-long long get(long long  key);
+void _put(long long key, long long  val);
+long long _get(long long  key);
 void init();
 void delete();
+
+//void make_map(FILE* f);
+void make_map(char* file);
+void end_map();
+long long get(long long line_num);
 
 #define min(a,b) (((a)<(b))?(a):(b))
 //#define TEST
@@ -42,10 +47,23 @@ void delete();
 int main(int argc, char* argv[]){
   //parse(argc,argv);
   init();
+
+  //TODO
+  //What better char*/FILE*???(better char*)
+  //WHAt if oppens any foile(permissions???)
+  char file[] ="head.c";
+  //FILE *f =fopen(file,"r");
+  make_map(file);
+
+  parse(argc, argv);
   
-  delete();
+  end_map();
+  
   return 0;
 }
+
+
+
 
 void parse(int argc, char **argv){
   if(argc <= 1){
@@ -93,8 +111,7 @@ int print_bytes(const char *FILE_NAME, int cnt){
       return 0;
     }
     cnt = ftell(f);
-    fseek(f,0,SEEK_SET);
-    printf("lala cnt = %d",cnt);
+    fseek(f,0,SEEK_SET);;
   }
   printf("==> %s <==\n",FILE_NAME);
   char a[1000];
@@ -117,9 +134,15 @@ int print_lines(const char* FILE_NAME, int cnt){
   FILE *f = fopen(FILE_NAME,"r");
   if(f==0)return 0;
   printf("==> %s <==\n",FILE_NAME);
+  if(cnt < 0){
+    cnt = SIZE + cnt;
+    if (cnt <= 0){
+      return;
+    }
+  }
   char a[1000];
   for(int i = 0; i < cnt; i++){
-    fgets(a,1000,f);
+    fgets(a,1000,f); // read line
     printf("%s",a);
   }
   printf("\n");
@@ -143,52 +166,91 @@ void run(int first_file, int last_file,const char * argv[], int cnt, int type ){
     }
   }
 }
+///////////////////////////////////////////////////////////////////////////
+//////////Lines-mapping methods////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
 int *map = 0;
+int IS_HASH = 0;
+/*
+//NOT WORKING
+void make_map(FILE *f){
+  int fd = fileno(f);
+  int status = fcntl(fd,F_GETFL);
+  // if(status&O_WRONLY)
+  //  return;
+*/
+void make_map(char * file){
+  FILE *f = fopen(file,"r");
+  if(!f){
+    return;
+  }
+  map_lines(f);
+}
+
+void end_map(){
+   if(IS_HASH){
+    delete();
+  }
+  else{
+    if(map!=0){
+      free(map);
+    }
+  }
+}
+
 
 void map_lines(FILE * f){
   // line_number -> file_location
   // TODO  hash
   fseek(f,0,SEEK_END);
-  long long N = ftell(f);
-  fseek(f,0,SEEK_CUR);
+  long long N  = ftell(f);
+  fseek(f,0,SEEK_SET);
   if(N <= 1E6){// array, no HASH
     IS_HASH = 0;
-    map = malloc(N*sizeof(long));
+    
+    map = malloc(N*sizeof(long long));
+    memset(map,0,(N*sizeof(long long)));
+    
     int k = 0;
-    int c;
-    while((c = next_line(f))!=-1){
-      map[k] = c;
+    int i;   
+    while((i = next_line(f))!=-1){
+      map[k] = i;
       k++;
     }
-    
+    SIZE = k;
   }
   else{//HASH
     IS_HASH = 1;
     int k = 0;
-    int c;
-    while((c = next_line(f))!=-1){
-      put(k,c);
+    int i;
+    while((i = next_line(f))!=-1){
+      _put(k,i);
       k++;
     }
   }
 }
 int next_line(FILE* f){
-  char c = fgetc(f);
+  char c = 0;
+  while(c != EOF && c!= '\n'){
+    c = fgetc(f);
+  }
   if(c == EOF){
     return -1;
   }
-  else
+  if(c == '\n'){
     return ftell(f);
+  }
+    
 }
 
 
 
 
 
-long long in_file(long long line_num){
+long long get(long long line_num){
   if(IS_HASH){
-    return get(line_num);
+    return _get(line_num);
   }
   else{
     return map[line_num];
@@ -216,7 +278,7 @@ list* HASH[H_SIZE];
 
 void make_hash(){ // N prime > 1E6
 }
-void put(long long key, long long  val){
+void _put(long long key, long long  val){
   long long k = key % H_SIZE;
   list * l = malloc(sizeof(list));
   memset(l,0,sizeof(list));
@@ -230,7 +292,7 @@ void put(long long key, long long  val){
     add_node(HASH[k],l);
   }
 }
-long long get(long long  key){
+long long _get(long long  key){
   long long k = key % H_SIZE;
   list *l = find(HASH[k],key);
   if(HASH[k] != 0){
@@ -265,7 +327,7 @@ void delete(){
     while(l != NULL){
       list*t=l;
       l=l->next;
-      free(l);
+      free(t);
     }
   }
 }
