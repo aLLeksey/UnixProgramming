@@ -29,8 +29,8 @@ long long _get(long long  key);
 void init();
 void delete();
 
-//void make_map(FILE* f);
-void make_map(char* file);
+void make_map(FILE* f);
+//void make_map(char* file);
 void end_map();
 long long get(long long line_num);
 
@@ -51,13 +51,9 @@ int main(int argc, char* argv[]){
   //TODO
   //What better char*/FILE*???(better char*)
   //WHAt if oppens any foile(permissions???)
-  char file[] ="head.c";
-  //FILE *f =fopen(file,"r");
-  make_map(file);
+ 
 
   parse(argc, argv);
-  
-  end_map();
   
   return 0;
 }
@@ -155,8 +151,29 @@ void print_c(char c, int times){
   }
 }	
 
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// TODO TODO TODO working with porblems lalalala
+test + work
+//check map
+//check output
+//???
+
+
 void run(int first_file, int last_file,const char * argv[], int cnt, int type ){
   for(int i = first_file; i < last_file;i++){
+
+    //BEG'ing work with file
+    
+    char file[] ="head.c";
+    FILE *f =fopen(file,"r");
+  
+    if(!f){
+      return;
+    }
+    // BEG'ining map allockate memory
+    make_map(f);
+    //make_map(file);
+    
     if(type==0){
       print_lines(argv[i],cnt);
       //print_c('#',80);
@@ -164,6 +181,8 @@ void run(int first_file, int last_file,const char * argv[], int cnt, int type ){
     else{
       print_bytes(argv[i],cnt);
     }
+    // END'ing map free memory
+    end_map();
   }
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -172,21 +191,26 @@ void run(int first_file, int last_file,const char * argv[], int cnt, int type ){
 
 int *map = 0;
 int IS_HASH = 0;
-/*
-//NOT WORKING
+
 void make_map(FILE *f){
   int fd = fileno(f);
   int status = fcntl(fd,F_GETFL);
-  // if(status&O_WRONLY)
-  //  return;
-*/
+  // OK Its kinda working
+  if(status&O_WRONLY)
+    return;
+  // printf("OK");
+  //printf("%o",&O_WRONLY);
+  map_lines(f);
+}
+/*
+OK Working
 void make_map(char * file){
   FILE *f = fopen(file,"r");
   if(!f){
     return;
   }
   map_lines(f);
-}
+ }*/
 
 void end_map(){
    if(IS_HASH){
