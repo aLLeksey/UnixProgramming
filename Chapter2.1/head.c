@@ -4,6 +4,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include <fcntl.h>
+#include<getopt.h>
 
 int print_lines(const char* FILE_NAME, int cnt);
 int print_bytes(const char *FILE_NAME, int cnt);
@@ -21,6 +22,7 @@ typedef struct my_list{
 }list;
 
 
+//TODO add Atoi which will find first digit(=10/10) and call atoi in that string
 
 list* find(list *l, long long key);
 void add_node(list* l,list *node);
@@ -35,7 +37,7 @@ void end_map();
 long long get(long long line_num);
 
 #define min(a,b) (((a)<(b))?(a):(b))
-//#define TEST
+#define TEST
 
 #ifdef TEST
 #define H_SIZE 11 // for testing
@@ -47,20 +49,12 @@ long long get(long long line_num);
 int main(int argc, char* argv[]){
   //parse(argc,argv);
   init();
-
-  //TODO
-  //What better char*/FILE*???(better char*)
-  //WHAt if oppens any foile(permissions???)
- 
-
-  parse(argc, argv);
+  
+  parse_long(argc, argv);
   
   return 0;
 }
-
-
-
-
+/*
 void parse(int argc, char **argv){
   if(argc <= 1){
     return;
@@ -69,6 +63,7 @@ void parse(int argc, char **argv){
   char *n_arg = 0;
   int type = 0;
   int q = 1;
+  // TODO getoptlong
   while((oc = getopt(argc,argv,"c:n:qv")) != -1){
     switch(oc){
     case 'c':
@@ -94,6 +89,51 @@ void parse(int argc, char **argv){
     run(optind,argc,argv,k,type);
   }
 }
+*/
+void parse_long(int argc, char **argv){
+  if(argc <= 1){
+    return;
+  }
+  int oc;
+  char *n_arg = 0;
+  int type = 0;
+  int q = 1;
+  struct option longopts[]={
+			    { "bytes",required_argument,NULL,'c' },
+			    { "lines",required_argument,NULL,'n' },
+			    { "quiet",no_argument,NULL,'q' },
+			    { "verbose",no_argument,NULL,'v'}
+  };
+  while((oc = getopt_long(argc,argv,":c:n:qv",longopts,NULL)) != -1){
+    switch(oc){
+    case 'c':
+      n_arg=optarg;
+      type = 1;
+      break;
+    case 'n':
+      n_arg=optarg;
+      type = 0;
+      break;
+    case 'q':
+      q = 0;
+      break;
+    case 'v':
+      q = 0;
+      break;
+    default:
+      printf("Oops Error");
+    }
+  }
+  int k = 10;
+  if(n_arg != 0){
+    printf("%s\n",n_arg);
+    k = atoi(n_arg+1);
+  }
+  if(optind<argc){
+    run(optind,argc,argv,k,type);
+  }
+}
+
 
 int print_bytes(const char *FILE_NAME, int cnt){
   FILE *f = fopen(FILE_NAME,"r");
@@ -153,7 +193,7 @@ void print_c(char c, int times){
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // TODO TODO TODO working with porblems lalalala
-test + work
+//test + work
 //check map
 //check output
 //???
@@ -164,8 +204,9 @@ void run(int first_file, int last_file,const char * argv[], int cnt, int type ){
 
     //BEG'ing work with file
     
-    char file[] ="head.c";
-    FILE *f =fopen(file,"r");
+    //char file[] ="head.c";
+    //FILE *f =fopen(file,"r");
+    FILE *f = fopen(argv[i],"r");
   
     if(!f){
       return;
@@ -188,7 +229,6 @@ void run(int first_file, int last_file,const char * argv[], int cnt, int type ){
 ///////////////////////////////////////////////////////////////////////////
 //////////Lines-mapping methods////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
-
 int *map = 0;
 int IS_HASH = 0;
 
@@ -198,8 +238,6 @@ void make_map(FILE *f){
   // OK Its kinda working
   if(status&O_WRONLY)
     return;
-  // printf("OK");
-  //printf("%o",&O_WRONLY);
   map_lines(f);
 }
 /*
@@ -211,7 +249,6 @@ void make_map(char * file){
   }
   map_lines(f);
  }*/
-
 void end_map(){
    if(IS_HASH){
     delete();
@@ -230,7 +267,7 @@ void map_lines(FILE * f){
   fseek(f,0,SEEK_END);
   long long N  = ftell(f);
   fseek(f,0,SEEK_SET);
-  if(N <= 1E6){// array, no HASH
+  if(N <= H_SIZE){// array, no HASH
     IS_HASH = 0;
     
     map = malloc(N*sizeof(long long));
