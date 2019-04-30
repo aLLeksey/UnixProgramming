@@ -12,6 +12,7 @@ int rev_print(FILE *f, int cnt);
 void print_c(char c, int times);
 void run(int first_file, int last_file,const char * argv[],int cnt, int type );
 
+int find_digit(const char * s, int n);
 
 long long SIZE = 0;
 
@@ -22,7 +23,9 @@ typedef struct my_list{
 }list;
 
 
-//TODO add Atoi which will find first digit(=10/10) and call atoi in that string
+//TODO make parameters work
+//TODO make hash work
+//DONE
 
 list* find(list *l, long long key);
 void add_node(list* l,list *node);
@@ -53,6 +56,18 @@ int main(int argc, char* argv[]){
   parse_long(argc, argv);
   
   return 0;
+}
+int is_digit(char c){
+  if(c>='0' && c <= '9'){
+    return 1;
+  }
+  return 0;
+}
+int find_digit(const char * s, int n){
+  int i = 0;
+  while(i < n && !is_digit(s[i]))
+    i++;
+  return i;
 }
 /*
 void parse(int argc, char **argv){
@@ -126,8 +141,15 @@ void parse_long(int argc, char **argv){
   }
   int k = 10;
   if(n_arg != 0){
-    printf("%s\n",n_arg);
-    k = atoi(n_arg+1);
+    int len = strlen(n_arg);
+    int i = find_digit(n_arg,len);
+    if(i<len){
+      k = atoi(n_arg+i);
+    }
+    else{
+      k=0;
+    }
+    
   }
   if(optind<argc){
     run(optind,argc,argv,k,type);
