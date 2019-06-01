@@ -1,3 +1,7 @@
+//TODO -> look BUGS file
+
+
+
 #include<stdlib.h>
 #include<stdio.h>
 #include<unistd.h>
@@ -5,6 +9,8 @@
 #include<string.h>
 #include <fcntl.h>
 #include<getopt.h>
+
+//#define DEBUG
 
 int print_lines(const char* FILE_NAME, int cnt);
 int print_bytes(const char *FILE_NAME, int cnt);
@@ -14,7 +20,7 @@ void run(int first_file, int last_file,const char * argv[],int cnt, int type );
 
 int find_digit(const char * s, int n);
 
-long long SIZE = 0;
+long long N_LINES = 0;
 
 typedef struct my_list{
   long long key;
@@ -40,10 +46,10 @@ void end_map();
 long long get(long long line_num);
 
 #define min(a,b) (((a)<(b))?(a):(b))
-#define TEST
+//#define TEST
 
-#ifdef TEST
-#define H_SIZE 11 // for testing
+#ifdef TEST1
+#define H_SIZE 11 // for testing // file_size bytes
 #else
 #define H_SIZE  1000003 //prime > 1E6;
 #endif
@@ -51,9 +57,20 @@ long long get(long long line_num);
 
 int main(int argc, char* argv[]){
   //parse(argc,argv);
+  
+  //start
   init();
   
-  parse_long(argc, argv);
+  parse_long(argc, argv); // ... < set N_LINES
+  
+  /*
+  char  file_name [] = "head.c";
+  //
+  FILE *f = fopen(file_name,"r");
+  make_map(f);
+  print_bytes(file_name, -2);
+  //print_lines(file_name,-100);
+  */;
   
   return 0;
 }
@@ -106,6 +123,7 @@ void parse(int argc, char **argv){
 }
 */
 void parse_long(int argc, char **argv){
+  
   if(argc <= 1){
     return;
   }
@@ -139,29 +157,35 @@ void parse_long(int argc, char **argv){
       printf("Oops Error");
     }
   }
-  int k = 10;
+  int cnt = 10;
+  
   if(n_arg != 0){
-    int len = strlen(n_arg);
-    int i = find_digit(n_arg,len);
-    if(i<len){
-      k = atoi(n_arg+i);
+    char *p = strchr(n_arg,'=');
+    if(p != 0){
+      cnt = atoi(p+1);
     }
     else{
-      k=0;
+      cnt = atoi(n_arg);
     }
-    
   }
+  
+#ifdef DEBUG
+  printf("n_arg = %s\n", n_arg);
+  printf("parse_cnt = %d\n", cnt);
+#endif
   if(optind<argc){
-    run(optind,argc,argv,k,type);
+    run(optind,argc,argv,cnt,type);
   }
+  
 }
-
+////////////////OUTPUT FUNCTIONS//////////////////////////
+//bytes //// lines /////////////////////////////////////////
 
 int print_bytes(const char *FILE_NAME, int cnt){
   FILE *f = fopen(FILE_NAME,"r");
   if(f==0)return 0;
-   fseek(f,0,SEEK_SET);
-  if(cnt < 0){
+  fseek(f,0,SEEK_SET); //begining
+  if(cnt < 0){ // print everything without count last bytes
     // cnt = -cnt;
     long long t = ftell(f); // start file
     fseek(f,cnt,SEEK_END);
@@ -169,7 +193,7 @@ int print_bytes(const char *FILE_NAME, int cnt){
       return 0;
     }
     cnt = ftell(f);
-    fseek(f,0,SEEK_SET);;
+    fseek(f,0,SEEK_SET); //begining
   }
   printf("==> %s <==\n",FILE_NAME);
   char a[1000];
@@ -189,11 +213,14 @@ int print_bytes(const char *FILE_NAME, int cnt){
 
 
 int print_lines(const char* FILE_NAME, int cnt){
+#ifdef DEBUG
+  printf("l_count = %d\n",cnt);
+#endif
   FILE *f = fopen(FILE_NAME,"r");
   if(f==0)return 0;
   printf("==> %s <==\n",FILE_NAME);
-  if(cnt < 0){
-    cnt = SIZE + cnt;
+  if(cnt < 0){ //print everything without count last lines
+    cnt = N_LINES + cnt;
     if (cnt <= 0){
       return;
     }
@@ -212,6 +239,11 @@ void print_c(char c, int times){
     i++;
   }
 }	
+///////////////END OUTPUT FUNCTIONS////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+
+
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // TODO TODO TODO working with porblems lalalala
@@ -222,9 +254,12 @@ void print_c(char c, int times){
 
 
 void run(int first_file, int last_file,const char * argv[], int cnt, int type ){
+#ifdef DEBUG
+  printf("run_cnt = %d\n",cnt);
+#endif
   for(int i = first_file; i < last_file;i++){
 
-    //BEG'ing work with file
+    //BEGINING work with file
     
     //char file[] ="head.c";
     //FILE *f =fopen(file,"r");
@@ -301,7 +336,7 @@ void map_lines(FILE * f){
       map[k] = i;
       k++;
     }
-    SIZE = k;
+    N_LINES = k;
   }
   else{//HASH
     IS_HASH = 1;
@@ -417,6 +452,7 @@ void delete(){
 
 void init(){
   memset(HASH,0,H_SIZE*sizeof(HASH[0]));
+  
 }
 
 

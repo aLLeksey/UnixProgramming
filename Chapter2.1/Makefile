@@ -1,16 +1,11 @@
-all: who
+all: head
 
-who: who.o utmplib.o logout_tty.o
-	gcc who.o utmplib.o logout_tty.o -o who.out
-
-who3.o: who.c
-	gcc -c who3.c
-
-utmplib.o: utmplib.c
-	gcc -c utmplib.c
-
-logout_tty.o: logout_tty.c
-	gcc -c logout_tty.c
+head: head.c
+	if gcc  head.c -o head; then \
+echo "success"; \
+else \
+echo "failure"; \
+fi
 
 clean:
-	rm -rf who.o utmplib.o who.out
+	rm -rf head

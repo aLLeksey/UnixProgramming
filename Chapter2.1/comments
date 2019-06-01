@@ -1,0 +1,9 @@
+Not working:
+?
+Working:
+output functions( print_bytes/print_lines )
+params(both +/-) -c --bytes -n --lines
+NotTested:
+other params
+
+
