@@ -1,8 +1,5 @@
 Not working:
-?
-Set number of bytes -c
-$ ./a.out -c 111 head.c
-^ prints 10 chars
+? BUGS(!!!) Maybe  working`
 Working:
 output functions( print_bytes/print_lines )
 params(both +/-) -c --bytes -n --lines

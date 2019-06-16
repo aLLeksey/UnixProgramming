@@ -22,6 +22,8 @@ int find_digit(const char * s, int n);
 
 long long N_LINES = 0;
 
+int print_headers = 1;
+
 typedef struct my_list{
   long long key;
   long long val;
@@ -61,16 +63,7 @@ int main(int argc, char* argv[]){
   //start
   init();
   
-  parse_long(argc, argv); // ... < set N_LINES
-  
-  /*
-  char  file_name [] = "head.c";
-  //
-  FILE *f = fopen(file_name,"r");
-  make_map(f);
-  print_bytes(file_name, -2);
-  //print_lines(file_name,-100);
-  */;
+  parse_long(argc, argv); // ... < set N_LINES;
   
   return 0;
 }
@@ -86,42 +79,7 @@ int find_digit(const char * s, int n){
     i++;
   return i;
 }
-/*
-void parse(int argc, char **argv){
-  if(argc <= 1){
-    return;
-  }
-  int oc;
-  char *n_arg = 0;
-  int type = 0;
-  int q = 1;
-  // TODO getoptlong
-  while((oc = getopt(argc,argv,"c:n:qv")) != -1){
-    switch(oc){
-    case 'c':
-      n_arg=optarg;
-      type = 1;
-      break;
-    case 'n':
-      n_arg=optarg;
-      type = 0;
-      break;
-    case 'q':
-      q = 0;
-      break;
-    case 'v':
-      q = 0;
-    }
-  }
-  int k = 10;
-  if(n_arg != 0){
-    k = atoi(n_arg+1);
-  }
-  if(optind<argc){
-    run(optind,argc,argv,k,type);
-  }
-}
-*/
+
 void parse_long(int argc, char **argv){
   
   if(argc <= 1){
@@ -130,7 +88,7 @@ void parse_long(int argc, char **argv){
   int oc;
   char *n_arg = 0;
   int type = 0;
-  int q = 1;
+  int v = 1;
   struct option longopts[]={
 			    { "bytes",required_argument,NULL,'c' },
 			    { "lines",required_argument,NULL,'n' },
@@ -148,13 +106,15 @@ void parse_long(int argc, char **argv){
       type = 0;
       break;
     case 'q':
-      q = 0;
+      v = 0;
       break;
     case 'v':
-      q = 0;
+      v = 1;
       break;
     default:
-      printf("Oops Error");
+      printf("Oops Error\n\
+Usage: ./head OPTION file\n\
+");
     }
   }
   int cnt = 10;
@@ -168,11 +128,19 @@ void parse_long(int argc, char **argv){
       cnt = atoi(n_arg);
     }
   }
+  print_headers = v;
   
 #ifdef DEBUG
   printf("n_arg = %s\n", n_arg);
   printf("parse_cnt = %d\n", cnt);
 #endif
+  /*
+  for(int i = optind; i < argc; i++){
+    printf("%s\n",argv[i]);
+  } */
+
+  // getopt reodered argv  
+  
   if(optind<argc){
     run(optind,argc,argv,cnt,type);
   }
@@ -195,7 +163,7 @@ int print_bytes(const char *FILE_NAME, int cnt){
     cnt = ftell(f);
     fseek(f,0,SEEK_SET); //begining
   }
-  printf("==> %s <==\n",FILE_NAME);
+  if(print_headers)printf("==> %s <==\n",FILE_NAME);
   char a[1000];
   while(cnt!=0){
     int k = fread(a,sizeof(char),min(cnt,999),f);
@@ -218,7 +186,7 @@ int print_lines(const char* FILE_NAME, int cnt){
 #endif
   FILE *f = fopen(FILE_NAME,"r");
   if(f==0)return 0;
-  printf("==> %s <==\n",FILE_NAME);
+  if(print_headers)printf("==> %s <==\n",FILE_NAME);
   if(cnt < 0){ //print everything without count last lines
     cnt = N_LINES + cnt;
     if (cnt <= 0){
