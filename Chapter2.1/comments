@@ -1,9 +1,14 @@
+head.c
+
 Not working:
-? BUGS(!!!) Maybe  working`
+? BUGS(!!!) Maybe  working
 Working:
 output functions( print_bytes/print_lines )
 params(both +/-) -c --bytes -n --lines
 NotTested:
 other params
 
-
+TODO
+tail.c
+od.c
+dd.c
