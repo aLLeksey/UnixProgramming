@@ -1,11 +1,12 @@
-all: head
+file = tail
+all: $(file)
 
-head: head.c
-	if gcc  head.c -o head; then \
-echo "success"; \
+$(file): $(file).c
+	if gcc  $(file).c -o $(file); then \
+echo "success";\
 else \
 echo "failure"; \
 fi
 
 clean:
-	rm -rf head
+	rm -rf $(file)

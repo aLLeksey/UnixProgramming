@@ -1,14 +1,21 @@
 head.c
-
 Not working:
 ? BUGS(!!!) Maybe  working
 Working:
 output functions( print_bytes/print_lines )
 params(both +/-) -c --bytes -n --lines
+-q/-r
 NotTested:
-other params
+?
 
 TODO
 tail.c
+Not working:
+everything
+not compilling
+need check printing n-th line from the file
+Working
+nothing
+
 od.c
 dd.c
