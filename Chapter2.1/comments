@@ -9,13 +9,17 @@ NotTested:
 ?
 
 TODO
+
 tail.c
+use xxd
 Not working:
 everything
-not compilling
+?...
 need check printing n-th line from the file
-Working
+Working:
 nothing
+Not Tested:
+prints corect number of lines. (But also prints gfirst char of next)
 
 od.c
 dd.c
