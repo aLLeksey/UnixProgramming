@@ -11,15 +11,18 @@ NotTested:
 TODO
 
 tail.c
-use xxd
+iuse xxd
 Not working:
 everything
 ?...
-need check printing n-th line from the file
+printing n-th byte from end of the file
 Working:
-nothing
+printing n-th line from end of the file
 Not Tested:
-prints corect number of lines. (But also prints gfirst char of next)
+TODO:
+refractor and merge outut file
+
 
 od.c
+
 dd.c
