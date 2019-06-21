@@ -14,17 +14,16 @@ tail.c
 iuse xxd
 Not working:
 everything
-?...
-printing n-th byte from end of the file
-printing n-th line from end of the file(50 lines OK 60 lines - empty space)
+?...e
+
 Working:
 ???
 Not Tested:
+print last n lines
+print last n chars
+#define TEST // <- change BUF_SIZE
 TODO:
-count bytes from SEEK_END and pas it to print_last
-or(if complicated/with errors)
-Make fseek for  each (two) functions and pass ftell(f);
-refractor and merge output file
+params
 
 
 od.c
