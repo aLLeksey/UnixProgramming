@@ -15,14 +15,13 @@ iuse xxd
 Not working:
 everything
 ?...e
-
+print last n chars
 Working:
 ???
-Not Tested:
 print last n lines
-print last n chars
-#define TEST // <- change BUF_SIZE
+Not Tested:
 TODO:
+print last n chars+ print last n lines
 params
 
 
