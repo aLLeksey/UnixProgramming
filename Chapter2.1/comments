@@ -11,18 +11,20 @@ NotTested:
 TODO
 
 tail.c
-iuse xxd
+use xxd
 Not working:
 everything
 ?...e
-print last n chars
 Working:
 ???
 print last n lines
+print last n chars
 Not Tested:
 TODO:
-print last n chars+ print last n lines
 params
+-c
+-n
+-f --follow
 
 
 od.c
