@@ -21,10 +21,11 @@ print last n lines
 print last n chars
 Not Tested:
 TODO:
-params
--c
--n
--f --follow
+Opts + work with FILE
+
+
+
+
 
 
 od.c
