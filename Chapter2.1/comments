@@ -22,7 +22,7 @@ print last n chars
 Not Tested:
 TODO:
 Opts + work with FILE
-
+find_pos TEST buf[found-buf]->*found
 
 
 

@@ -14,16 +14,16 @@
 #define BUF_SIZE 1000
 #endif
 
-#defin NLINES 10
+#define NLINES 10
 
 #define min(x, y)  ((x) < (y) ? (x) : (y))
 
 typedef void (*Fp) (FILE *f, long n);
 
 
-int find_pos(int *n, char* buf);
+int find_pos(long *n, char* buf);
 long find_nline(FILE *f, int n_lines);
-void print_last_lines(FILE *f, int n);
+void print_last_lines(FILE *f, long n);
 void print_last_bytes(FILE *f, long n);
 
 
@@ -48,52 +48,53 @@ long convert(char *arg){
   if(arg == 0){
     return 0;
   }
-  char *p = strchr(n_arg,'=');
+  char *p = strchr(arg,'=');
   if(p != 0){
     return atoi(p+1);
   }
   else{
-    return atoi(n_arg);
+    return atoi(arg);
   }
 }
 
 
 // parcer
-void parse_long(int argv, char* argv[]){
+void parse_long(int argc, char* argv[]){
   int follow = 0;
   Fp fp;
   if(argc <= 1){
-    retrun;
+    return;
   }
 
   int oc;
   struct  option longopts[] = {
 			       {"bytes",required_argument,NULL,'c'},
 			       {"lines",required_argument,NULL,'n'},
-			       {"follow",no_argument.NULL,'f'},
+			       {"follow",no_argument,NULL,'f'},
 			       {"help", no_argument,NULL,'h'}
   };
 
   
-  while((oc = getopt_long(argv,argv,":c:n:fh",longopts,NULL)) != -1){
+  while((oc = getopt_long(argc,argv,":c:n:fh",longopts,NULL)) != -1){
     switch(oc){
     case'c':   
       fp = print_last_bytes;
-      return 0;
+      break;
     case 'n':
       fp =  print_last_lines;
-      return 0;
+      break;
     case 'f':
-      follow=1;  
-    }
+      follow=1;
+      break;
   default:
     printf("***OOps we are here***\n");
-    return -1;
+    return;
+    }
   }
-  long cnt = convert(opt_arg);
+  long cnt = convert(optarg);
   // Print files according to opts
   if(optind<argc){
-    if(folow){
+    if(follow){
       folow_file(argv[opt_index]);
     }
     elase{
@@ -133,7 +134,7 @@ void follow_file(const char *filename){
 // finds begining  n-th '\n' starting from EOF);
 // if success first character of n-th line in FILE
 // if fail -1
-long find_nline(FILE *f, int n_lines){
+long find_nline(FILE *f, long n_lines){
   // search for begining of line (after '\n')
   n_lines++; // begining -> (n + 1) * '\n';
   long old = ftell(f); // SEEK_SET begining
@@ -141,7 +142,7 @@ long find_nline(FILE *f, int n_lines){
   fseek(f, 0, SEEK_END);
   char buff[BUF_SIZE + 1];
   
-  int n = n_lines;
+  long n = n_lines;
   long pos = 0;
   int i = 1; //position before start of reading in
   long len = BUF_SIZE;
@@ -199,12 +200,12 @@ long find_nline(FILE *f, int n_lines){
 }
 // return position of '\n' in buf if #'\n's == n
 // otheerwise -1
-int find_pos(int *n, char* buf){
-  int n_found = 0;
+int find_pos(long *n, char* buf){
+  long n_found = 0;
   char* found = NULL;
   while(n_found < *n && (found = strrchr(buf,'\n')) != NULL){
     n_found++;
-    buf[found-buf] = 0;
+    buf[found-buf] = 0; // TODO change -> *found
   }
   if(n_found == 0){
     return -1;
@@ -214,12 +215,12 @@ int find_pos(int *n, char* buf){
     return -1;
   }
   else if(n_found == *n){
-    return found - buf;
+    return found - buf; // TODO change -> *found
   }
 }
 
 
-void print_last_lines(FILE *f, int n){
+void print_last_lines(FILE *f, long n){
   print_last(f,find_nline(f,n));
 }
 
