@@ -50,10 +50,12 @@ long convert(char *arg){
   }
   char *p = strchr(arg,'=');
   if(p != 0){
-    return atoi(p+1);
+    return atol(p+1);
   }
   else{
-    return atoi(arg);
+    return atol(arg);
+    // return strtol(p+1,NULL,2);
+    // TODO change^
   }
 }
 
@@ -91,13 +93,22 @@ void parse_long(int argc, char* argv[]){
     return;
     }
   }
+  //TODO
+  // check for errors
+  //
+  
   long cnt = convert(optarg);
+  
+  /* if(not_conerted){ // if there was error
+    cnt = 10;
+  }
+  */
   // Print files according to opts
   if(optind<argc){
     if(follow){
-      folow_file(argv[opt_index]);
+      follow_file(argv[optindex]);
     }
-    elase{
+    else{
       run(optind,argc,argv,cnt,fp);
     }
   }
@@ -120,10 +131,12 @@ void run(int first_file, int last_file,const char * argv[], long cnt, Fp fp ){
 
 void follow_file(const char *filename){
   FILE *f = fopen(filename,"rt");
-  print_last_lins(f, NLINES);
+  print_last_lines(f, NLINES);
+  char buf [BUF_SIZE];
       while(1){	
-	while(fread(FILE)){
-	  fwrite(stdout);
+	while(fread(buf,sizeof(char),BUF_SIZE-1,f)){
+	  buf[BUF_SIZE] = 0;
+	  fwrite(buf,sizeof(char),BUF_SIZE -1, f);
 	}
       }
       return 0;
@@ -157,6 +170,8 @@ long find_nline(FILE *f, long n_lines){
       start = 1;
       len = ftell(f);
       fseek(f,0,SEEK_SET);
+
+      // fseek < 0 => fseek = 0
     }
 
     len = min(len, BUF_SIZE);
