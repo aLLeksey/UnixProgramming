@@ -25,8 +25,7 @@ Opts + work with FILE
 find_pos TEST buf[found-buf]->*found
 test what would be if read(fseek) < 0 (before beg of file) ? error + no change ftell? ?ftell < 0 ?
 (!)
--rewrite convert(Need Somehow indicate error)
--+add follow_file-function
+-Find WHY not compiles!!!?
 
 
 

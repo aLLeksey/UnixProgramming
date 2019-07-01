@@ -56,17 +56,20 @@ long convert(char *arg){
   char *nptr = NULL;
   char *p = strchr(arg,'=');
   if(p != 0){
-    res =  strtol(p+1,&endptr,10);
+    //res =  strtol(p+1,&endptr,10);
+    res = atoi(p+1);
     nptr = p+1;
   }
   else{
-    res = strtol(arg,&endptr,10);
+    // res = strtol(arg,&endptr,10);
+    res = atoi(arg);
+    
     nptr = arg;
   }
   if(errno!=0||endptr==nptr){
     return -1;
   }
-  return res;
+  return 10;
 }
 
 
@@ -105,9 +108,9 @@ void parse_long(int argc, char* argv[]){
   }
   
   long cnt = convert(optarg);
-  if( cnt == -1 ){
+  // if( cnt == -1 ){
     cnt = NLINES;
-  }
+    // }
 
   // Print files according to opts
   if(optind<argc){
