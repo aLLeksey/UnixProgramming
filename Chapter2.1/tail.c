@@ -7,6 +7,7 @@
 #include<string.h>
 #include<getopt.h>
 #include<stdlib.h>
+#include<errno.h>
 
 #ifdef TEST
 #define BUF_SIZE 10
@@ -22,10 +23,12 @@ typedef void (*Fp) (FILE *f, long n);
 
 
 int find_pos(long *n, char* buf);
-long find_nline(FILE *f, int n_lines);
+long find_nline(FILE *f, long n_lines);
 void print_last_lines(FILE *f, long n);
 void print_last_bytes(FILE *f, long n);
-
+void print_last(FILE* f, long pos);
+void follow_file(const char *filename);
+void run(int first_file, int last_file,char *  argv[], long cnt, Fp fp); 
 
 int main(int argc, char *argv[]){
   
@@ -43,20 +46,27 @@ int main(int argc, char *argv[]){
    
 }
 
-
 long convert(char *arg){
   if(arg == 0){
-    return 0;
+    return -1;
   }
+  errno = 0;
+  long res = 0;
+  char *endptr = NULL;
+  char *nptr = NULL;
   char *p = strchr(arg,'=');
   if(p != 0){
-    return atol(p+1);
+    res =  strtol(p+1,&endptr,10);
+    nptr = p+1;
   }
   else{
-    return atol(arg);
-    // return strtol(p+1,NULL,2);
-    // TODO change^
+    res = strtol(arg,&endptr,10);
+    nptr = arg;
   }
+  if(errno!=0||endptr==nptr){
+    return -1;
+  }
+  return res;
 }
 
 
@@ -93,20 +103,16 @@ void parse_long(int argc, char* argv[]){
     return;
     }
   }
-  //TODO
-  // check for errors
-  //
   
   long cnt = convert(optarg);
-  
-  /* if(not_conerted){ // if there was error
-    cnt = 10;
+  if( cnt == -1 ){
+    cnt = NLINES;
   }
-  */
+
   // Print files according to opts
   if(optind<argc){
     if(follow){
-      follow_file(argv[optindex]);
+      follow_file(argv[optind]);
     }
     else{
       run(optind,argc,argv,cnt,fp);
@@ -115,7 +121,7 @@ void parse_long(int argc, char* argv[]){
 
 }
 
-void run(int first_file, int last_file,const char * argv[], long cnt, Fp fp ){
+void run(int first_file, int last_file, char * argv[], long cnt, Fp fp ){
 #ifdef DEBUG
   printf("run_cnt = %d\n",cnt);
 #endif
@@ -139,7 +145,6 @@ void follow_file(const char *filename){
 	  fwrite(buf,sizeof(char),BUF_SIZE -1, f);
 	}
       }
-      return 0;
 }
 
 
