@@ -28,12 +28,16 @@ void print_last_lines(FILE *f, long n);
 void print_last_bytes(FILE *f, long n);
 void print_last(FILE* f, long pos);
 void follow_file(const char *filename);
-void run(int first_file, int last_file,char *  argv[], long cnt, Fp fp); 
-
+//void run(int first_file, int last_file,char *  argv[], long cnt, Fp fp); 
+void run(int first_file, int last_file,char *  argv[], long cnt,int is_lines);
 int main(int argc, char *argv[]){
-  
+
+  /*
   FILE *f = fopen(argv[1],"rt");
-  long  n = atol(argv[2]);
+  long n = NLINES;
+  if(argc > 2){
+    n = atol(argv[2]);
+  }
 
 #ifdef DEBUG
   long pos = ftell(f);
@@ -43,7 +47,9 @@ int main(int argc, char *argv[]){
 #endif
   //print_last_lines(f,n);
   print_last_bytes(f,n);
-   
+  */
+  parse_long(argc, argv);
+  
 }
 
 long convert(char *arg){
@@ -56,31 +62,30 @@ long convert(char *arg){
   char *nptr = NULL;
   char *p = strchr(arg,'=');
   if(p != 0){
-    //res =  strtol(p+1,&endptr,10);
-    res = atoi(p+1);
+    res =  strtol(p+1,&endptr,10);
+    //res = atoi(p+1);
     nptr = p+1;
   }
   else{
-    // res = strtol(arg,&endptr,10);
-    res = atoi(arg);
-    
+    res = strtol(arg,&endptr,10);
+    //res = atoi(arg);    
     nptr = arg;
   }
   if(errno!=0||endptr==nptr){
     return -1;
   }
-  return 10;
+  return res;
 }
 
 
 // parcer
 void parse_long(int argc, char* argv[]){
   int follow = 0;
-  Fp fp;
+  //Fp fp;
   if(argc <= 1){
     return;
   }
-
+  int is_lines = 0;
   int oc;
   struct  option longopts[] = {
 			       {"bytes",required_argument,NULL,'c'},
@@ -93,10 +98,12 @@ void parse_long(int argc, char* argv[]){
   while((oc = getopt_long(argc,argv,":c:n:fh",longopts,NULL)) != -1){
     switch(oc){
     case'c':   
-      fp = print_last_bytes;
+      //fp = print_last_bytes;
+      is_lines = 0;
       break;
     case 'n':
-      fp =  print_last_lines;
+      //fp =  print_last_lines;
+      is_lines = 1;
       break;
     case 'f':
       follow=1;
@@ -106,35 +113,52 @@ void parse_long(int argc, char* argv[]){
     return;
     }
   }
-  
+  /*
   long cnt = convert(optarg);
-  // if( cnt == -1 ){
+  if( cnt == -1 ){
     cnt = NLINES;
-    // }
+  }
+  */
+  long  cnt = NLINES;
 
+    
+  
   // Print files according to opts
   if(optind<argc){
     if(follow){
       follow_file(argv[optind]);
     }
     else{
-      run(optind,argc,argv,cnt,fp);
+      run(optind,argc,argv,cnt,is_lines);
     }
   }
 
 }
 
-void run(int first_file, int last_file, char * argv[], long cnt, Fp fp ){
+void run(int first_file, int last_file, char * argv[], long cnt, int is_lines ){
 #ifdef DEBUG
   printf("run_cnt = %d\n",cnt);
 #endif
   for(int i = first_file; i < last_file;i++){
+    long pos = 0;
     //BEGINING work with file;
+#ifdef DEBUG
+    printf("Opening file \"%s\"\n",argv[i]);
+#endif
     FILE *f = fopen(argv[i],"r");  
     if(!f){
       return;
-    };    
-    fp(f,cnt);
+    };
+#ifdef DEBUG
+    printf("File \"%s\" opened\n",argv[i]);
+#endif
+    if(is_lines){
+     pos = find_nline(f,cnt);
+    }
+    else{
+      pos = -cnt;
+    }
+    print_last(f,pos);
   }
 }
 
