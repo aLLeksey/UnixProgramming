@@ -19,16 +19,13 @@
 
 #define min(x, y)  ((x) < (y) ? (x) : (y))
 
-typedef void (*Fp) (FILE *f, long n);
-
 
 int find_pos(long *n, char* buf);
 long find_nline(FILE *f, long n_lines);
 void print_last_lines(FILE *f, long n);
 void print_last_bytes(FILE *f, long n);
 void print_last(FILE* f, long pos);
-void follow_file(const char *filename);
-//void run(int first_file, int last_file,char *  argv[], long cnt, Fp fp); 
+void follow_file(const char *filename);; 
 void run(int first_file, int last_file,char *  argv[], long cnt,int is_lines);
 int main(int argc, char *argv[]){
 
@@ -99,9 +96,6 @@ void parse_long(int argc, char* argv[]){
   if( cnt == -1 ){
     cnt = NLINES;
   }    
-#ifdef DEBUG
-  printf("parse_cnt = %d\n",cnt);
-#endif
   // Print files according to opts
   if(optind<argc){
     if(follow){
@@ -115,22 +109,16 @@ void parse_long(int argc, char* argv[]){
 }
 
 void run(int first_file, int last_file, char * argv[], long cnt, int is_lines ){
-#ifdef DEBUG
-  printf("run_cnt = %d\n",cnt);
-#endif
+
   for(int i = first_file; i < last_file;i++){
     long pos = 0;
-    //BEGINING work with file;
-#ifdef DEBUG
-    printf("Opening file \"%s\"\n",argv[i]);
-#endif
+    
+    //BEGINING work with file;  
     FILE *f = fopen(argv[i],"r");  
     if(!f){
       return;
     };
-#ifdef DEBUG
-    printf("File \"%s\" opened\n",argv[i]);
-#endif
+    
     if(is_lines){
      pos = find_nline(f,cnt);
     }
@@ -157,27 +145,21 @@ void follow_file(const char *filename){
 
 
 
-// finds begining  n-th '\n' starting from EOF);
-// if success first character of n-th line in FILE
-// if fail -1
 long find_nline(FILE *f, long n_lines){
-  // search for begining of line (after '\n')
   n_lines++; // begining -> (n + 1) * '\n';
-  long old = ftell(f); // SEEK_SET begining
-
+  long old = ftell(f);\
+  
   fseek(f, 0, SEEK_END);
   char buff[BUF_SIZE + 1];
   
   long n = n_lines;
   long pos = 0;
-  int i = 1; //position before start of reading in
+  int i = 1;
   long len = BUF_SIZE;
   int start = 0;
   /* FILE NOT ENDED AND n < n__lines */
   while(start != 1 && n != 0 ) {
-    // ????
     if(fseek(f,-BUF_SIZE  * i,SEEK_END)){
-      // if(fseek(f, -BUF_SIZE  * i,SEEK_CUR)){
       
       // unsuccess
       start = 1;
@@ -210,18 +192,7 @@ long find_nline(FILE *f, long n_lines){
   }
   else{
     // success
-    //TODO
-    //count from SEEK_SET
-    //long res_pos = ftell(f) - (len - pos - 1);
-    //TODO
-    //cont from SEEK_END
     long res_pos = -(BUF_SIZE *(i - 1) + len - pos - 1); // +/-1<-error?
-#ifdef DEBUG
-    printf("res_pos=%ld\n",res_pos);
-#endif
-    //^TODO^
-    
-    // restore file position before the call
     fseek(f,old,SEEK_SET);
     return res_pos;
   }          
@@ -233,7 +204,6 @@ int find_pos(long *n, char* buf){
   char* found = NULL;
   while(n_found < *n && (found = strrchr(buf,'\n')) != NULL){
     n_found++;
-    // buf[found-buf] = 0; // TODO change -> *found
     *found=0;
   }
   if(n_found == 0){
@@ -244,7 +214,7 @@ int find_pos(long *n, char* buf){
     return -1;
   }
   else if(n_found == *n){
-    return found - buf; // TODO change -> *found
+    return found - buf;
   }
 }
 
@@ -261,24 +231,16 @@ void print_last(FILE* f, long pos){
   char buf[BUF_SIZE +1];
   memset(buf,0,BUF_SIZE + 1);
 
-#ifdef DEBUG
-  printf("LALA in print_last LALA\n");
-  printf("print_last pos = %ld\n",pos);
-#endif
 
   
   if(fseek(f,pos,SEEK_END)){
     perror("print_last fseek error\n");
   }
 
-#ifdef DEBUG
-  printf("ftell in print_last = %ld\n", ftell(f));
-#endif
   int r = 0;
   while(r=fread(buf,sizeof(char),BUF_SIZE,f)){
     buf[BUF_SIZE]=0;
     fwrite(buf,sizeof(char),r,stdout);
-    // fflush(stdout);
     memset(buf,0,BUF_SIZE + 1);
   }
 }
