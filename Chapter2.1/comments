@@ -17,15 +17,12 @@ everything
 ?...e
 Working:
 ???
-print last n lines
-print last n chars
+print last n lines+opt
+print last n chars+opt
 Not Tested:
 TODO:
-Opts + work with FILE
 find_pos TEST buf[found-buf]->*found
-test what would be if read(fseek) < 0 (before beg of file) ? error + no change ftell? ?ftell < 0 ?
-(!)
--Find WHY crushes when folow
+-make folow serveral filwes
 -dress code
 
 

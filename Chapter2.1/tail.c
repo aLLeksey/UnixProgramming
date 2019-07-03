@@ -1,7 +1,7 @@
 //TODO -> BUGS
 
-//#define DEBUG
-//#define TEST
+#define DEBUG
+#define TEST
 
 #include<stdio.h>
 #include<string.h>
@@ -32,22 +32,6 @@ void follow_file(const char *filename);
 void run(int first_file, int last_file,char *  argv[], long cnt,int is_lines);
 int main(int argc, char *argv[]){
 
-  /*
-  FILE *f = fopen(argv[1],"rt");
-  long n = NLINES;
-  if(argc > 2){
-    n = atol(argv[2]);
-  }
-
-#ifdef DEBUG
-  long pos = ftell(f);
-  fseek(f,0,SEEK_END);
-  printf("file_size=%ld\n",ftell(f));
-  fseek(f, pos, SEEK_SET);
-#endif
-  //print_last_lines(f,n);
-  print_last_bytes(f,n);
-  */
   parse_long(argc, argv);
   
 }
@@ -63,12 +47,10 @@ long convert(char *arg){
   char *p = strchr(arg,'=');
   if(p != 0){
     res =  strtol(p+1,&endptr,10);
-    //res = atoi(p+1);
     nptr = p+1;
   }
   else{
     res = strtol(arg,&endptr,10);
-    //res = atoi(arg);    
     nptr = arg;
   }
   if(errno!=0||endptr==nptr){
@@ -81,12 +63,12 @@ long convert(char *arg){
 // parcer
 void parse_long(int argc, char* argv[]){
   int follow = 0;
-  //Fp fp;
   if(argc <= 1){
     return;
   }
   int is_lines = 0;
   int oc;
+  char * _optarg = NULL;
   struct  option longopts[] = {
 			       {"bytes",required_argument,NULL,'c'},
 			       {"lines",required_argument,NULL,'n'},
@@ -98,31 +80,28 @@ void parse_long(int argc, char* argv[]){
   while((oc = getopt_long(argc,argv,":c:n:fh",longopts,NULL)) != -1){
     switch(oc){
     case'c':   
-      //fp = print_last_bytes;
       is_lines = 0;
+      _optarg=optarg;
       break;
     case 'n':
-      //fp =  print_last_lines;
       is_lines = 1;
+      _optarg=optarg;
       break;
     case 'f':
       follow=1;
       break;
-  default:
-    printf("***OOps we are here***\n");
-    return;
+    default:
+      printf("***OOps we are here***\n");
+      return;
     }
   }
-  /*
-  long cnt = convert(optarg);
+  long cnt = convert(_optarg);
   if( cnt == -1 ){
     cnt = NLINES;
-  }
-  */
-  long  cnt = NLINES;
-
-    
-  
+  }    
+#ifdef DEBUG
+  printf("parse_cnt = %d\n",cnt);
+#endif
   // Print files according to opts
   if(optind<argc){
     if(follow){
@@ -166,10 +145,12 @@ void follow_file(const char *filename){
   FILE *f = fopen(filename,"rt");
   print_last_lines(f, NLINES);
   char buf [BUF_SIZE];
-      while(1){	
-	while(fread(buf,sizeof(char),BUF_SIZE-1,f)){
-	  buf[BUF_SIZE] = 0;
-	  fwrite(buf,sizeof(char),BUF_SIZE -1, f);
+      while(1){
+	int n =0;
+	while(n = fread(buf,sizeof(char),BUF_SIZE-1,f)){
+	  n = min(n,BUF_SIZE);
+	  buf[n] = 0;
+	  fwrite(buf,sizeof(char),n, stdout);
 	}
       }
 }
@@ -252,7 +233,8 @@ int find_pos(long *n, char* buf){
   char* found = NULL;
   while(n_found < *n && (found = strrchr(buf,'\n')) != NULL){
     n_found++;
-    buf[found-buf] = 0; // TODO change -> *found
+    // buf[found-buf] = 0; // TODO change -> *found
+    *found=0;
   }
   if(n_found == 0){
     return -1;
