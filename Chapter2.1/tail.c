@@ -19,6 +19,8 @@
 
 #define min(x, y)  ((x) < (y) ? (x) : (y))
 
+int PRINT_HEADERS = 0;
+
 
 int find_pos(long *n, char* buf);
 long find_nline(FILE *f, long n_lines);
@@ -70,11 +72,13 @@ void parse_long(int argc, char* argv[]){
 			       {"bytes",required_argument,NULL,'c'},
 			       {"lines",required_argument,NULL,'n'},
 			       {"follow",no_argument,NULL,'f'},
+			       {"verbise",no_argument,NULL,'v'},
+			       {"quit",no_argument,NULL,'q'},
 			       {"help", no_argument,NULL,'h'}
   };
 
   
-  while((oc = getopt_long(argc,argv,":c:n:fh",longopts,NULL)) != -1){
+  while((oc = getopt_long(argc,argv,":c:n:fvqh",longopts,NULL)) != -1){
     switch(oc){
     case'c':   
       is_lines = 0;
@@ -86,6 +90,12 @@ void parse_long(int argc, char* argv[]){
       break;
     case 'f':
       follow=1;
+      break;
+    case 'v':
+      PRINT_HEADERS=1;
+      break;
+    case 'q':
+      PRINT_HEADERS=0;
       break;
     default:
       printf("***OOps we are here***\n");
@@ -118,6 +128,9 @@ void run(int first_file, int last_file, char * argv[], long cnt, int is_lines ){
     if(!f){
       return;
     };
+    if(PRINT_HEADERS){
+      printf("===%s===",argv[i]);
+    }
     
     if(is_lines){
      pos = find_nline(f,cnt);
