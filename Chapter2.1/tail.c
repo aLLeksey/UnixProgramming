@@ -20,15 +20,20 @@
 #define min(x, y)  ((x) < (y) ? (x) : (y))
 
 int PRINT_HEADERS = 0;
+int IS_LINES = 0;
 
+typedef struct {
+  FILE *f;
+  file_node *node;
+}file_node;
 
 int find_pos(long *n, char* buf);
 long find_nline(FILE *f, long n_lines);
 void print_last_lines(FILE *f, long n);
 void print_last_bytes(FILE *f, long n);
 void print_last(FILE* f, long pos);
-void follow_file(const char *filename);; 
-void run(int first_file, int last_file,char *  argv[], long cnt,int is_lines);
+void follow_file(int first_file, int last_file, char * argv[], long cnt);
+void run(int first_file, int last_file,char *  argv[], long cnt);
 int main(int argc, char *argv[]){
 
   parse_long(argc, argv);
@@ -59,6 +64,7 @@ long convert(char *arg){
 }
 
 
+		 
 // parcer
 void parse_long(int argc, char* argv[]){
   int follow = 0;
@@ -109,7 +115,7 @@ void parse_long(int argc, char* argv[]){
   // Print files according to opts
   if(optind<argc){
     if(follow){
-      follow_file(argv[optind]);
+      follow_file(optind,argc,argv,cnt,is_lines);
     }
     else{
       run(optind,argc,argv,cnt,is_lines);
@@ -118,15 +124,18 @@ void parse_long(int argc, char* argv[]){
 
 }
 
-void run(int first_file, int last_file, char * argv[], long cnt, int is_lines ){
+		 
+void run(int first_file, int last_file, char * argv[], long cnt){
 
-  for(int i = first_file; i < last_file;i++){
+  int is_lines = IS_LINES;
+  
+  for(int i = first_file; i < last_file; i++){
     long pos = 0;
     
     //BEGINING work with file;  
     FILE *f = fopen(argv[i],"r");  
     if(!f){
-      return;
+      continue;
     };
     if(PRINT_HEADERS){
       printf("===%s===",argv[i]);
@@ -142,21 +151,44 @@ void run(int first_file, int last_file, char * argv[], long cnt, int is_lines ){
   }
 }
 
-void follow_file(const char *filename){
-  FILE *f = fopen(filename,"rt");
-  print_last_lines(f, NLINES);
-  char buf [BUF_SIZE];
-      while(1){
-	int n =0;
-	while(n = fread(buf,sizeof(char),BUF_SIZE-1,f)){
-	  n = min(n,BUF_SIZE);
-	  buf[n] = 0;
-	  fwrite(buf,sizeof(char),n, stdout);
-	}
-      }
+		 
+void follow_file(int first_file, int last_file, char * argv[], long cnt){
+  init_filelist();
+  for(int i = first_file; i < last_file; i++){
+    FILE *f = fopen(argv[i],"r");  
+    if(!f){
+      continue;
+    }
+    add(f);
+  }
+  for(FILE * f in file_list){//use static
+    if(is_lines){
+     pos = find_nline(f,cnt);
+    }
+    else{
+      pos = -cnt;
+    }
+    print_last(f,pos);
+  }
+  while(1){
+    for(FILE * f in file_list){
+      print_file(f);
+    }
+  }
+  
 }
 
+int print_file(FILE *f){
+  char buf [BUF_SIZE];
+    while(n = fread(buf,sizeof(char),BUF_SIZE-1,f)){
+      n = min(n,BUF_SIZE);
+      buf[n] = 0;
+      fwrite(buf,sizeof(char),n, stdout);
+  }
+}
+		 
 
+		 
 
 long find_nline(FILE *f, long n_lines){
   n_lines++; // begining -> (n + 1) * '\n';
