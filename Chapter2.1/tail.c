@@ -31,7 +31,7 @@ int find_pos(long *n, char* buf);
 long find_nline(FILE *f, long n_lines);
 void print_last_lines(FILE *f, long n);
 void print_last_bytes(FILE *f, long n);
-void print_last(FILE* f, long pos);
+void print_pos(FILE* f, long pos);
 void follow_file(int first_file, int last_file, char * argv[], long cnt);
 void run(int first_file, int last_file,char *  argv[], long cnt);
 int main(int argc, char *argv[]){
@@ -126,34 +126,37 @@ void parse_long(int argc, char* argv[]){
 
 		 
 void run(int first_file, int last_file, char * argv[], long cnt){
-
+  // TODO add here to list then use 'run' in 'follow_file'
+  //
+  //
   int is_lines = IS_LINES;
   
   for(int i = first_file; i < last_file; i++){
     long pos = 0;
-    
     //BEGINING work with file;  
     FILE *f = fopen(argv[i],"r");  
     if(!f){
       continue;
     };
+    //TODO 
+    //add FILE * to list    
+    
+    add(f);
+  
+    //TODO move print_headers to 'print_last'
+
     if(PRINT_HEADERS){
       printf("===%s===",argv[i]);
     }
-    
-    if(is_lines){
-     pos = find_nline(f,cnt);
-    }
-    else{
-      pos = -cnt;
-    }
-    print_last(f,pos);
+    print_last(f,cnt);;
   }
 }
 
 		 
 void follow_file(int first_file, int last_file, char * argv[], long cnt){
   init_filelist();
+
+// TODO instead call 'run'
   for(int i = first_file; i < last_file; i++){
     FILE *f = fopen(argv[i],"r");  
     if(!f){
@@ -162,20 +165,25 @@ void follow_file(int first_file, int last_file, char * argv[], long cnt){
     add(f);
   }
   for(FILE * f in file_list){//use static
-    if(is_lines){
-     pos = find_nline(f,cnt);
-    }
-    else{
-      pos = -cnt;
-    }
-    print_last(f,pos);
-  }
+    print_last(f,cnt);
   while(1){
     for(FILE * f in file_list){
       print_file(f);
     }
   }
   
+}
+
+void print_last(FILE *f, long cnt){
+//TODO add print headers here (is it possible to know filename by file?)
+  long pos = 0;
+  if(IS_LINES){
+    pos = find_nline(f,cnt); //TODO change to find_line
+  }
+  else{
+    pos = -cnt;	
+  }
+  print_pos(f,pos);
 }
 
 int print_file(FILE *f){
@@ -272,7 +280,7 @@ void print_last_bytes(FILE *f, long n){
   print_last(f, -n);  
 }
 
-void print_last(FILE* f, long pos){
+void print_pos(FILE* f, long pos){
   char buf[BUF_SIZE +1];
   memset(buf,0,BUF_SIZE + 1);
 

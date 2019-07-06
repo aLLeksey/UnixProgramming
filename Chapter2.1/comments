@@ -22,6 +22,7 @@ TODO:
 find_pos TEST buf[found-buf]->*found
 -make folow serveral files
 --make file_list+functions
+--TODO in 'file_list'(add 'run', use lists in 'run'
 -dress code
 
 
