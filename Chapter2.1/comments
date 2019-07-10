@@ -2,7 +2,7 @@ head.c
 Not working:
 ? BUGS(!!!) Maybe  working
 Working:
-output functions( print_bytes/print_lines )
+ioutput functions( print_bytes/print_lines )
 params(both +/-) -c --bytes -n --lines
 -q/-r
 NotTested:
@@ -20,10 +20,8 @@ print last n chars+opt
 Not Tested:
 TODO:
 find_pos TEST buf[found-buf]->*found
--make folow serveral files
---make file_list+functions
---TODO in 'file_list'(add 'run', use lists in 'run'
--dress code
+-make folow serveral files`
+-dress cod
 
 
 

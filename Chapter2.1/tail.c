@@ -16,23 +16,27 @@
 #endif
 
 #define NLINES 10
-
 #define min(x, y)  ((x) < (y) ? (x) : (y))
+#define FNAME_SIZE 0xFFF
 
 int PRINT_HEADERS = 0;
 int IS_LINES = 0;
 
 typedef struct {
-  FILE *f;
-  file_node *node;
+  FILE *file;
+  char *name;
+  file_node *next;
 }file_node;
+
+file_node *HEAD = NULL;
+file_node *TAIL = NULL;
 
 int find_pos(long *n, char* buf);
 long find_nline(FILE *f, long n_lines);
 void print_last_lines(FILE *f, long n);
 void print_last_bytes(FILE *f, long n);
 void print_pos(FILE* f, long pos);
-void follow_file(int first_file, int last_file, char * argv[], long cnt);
+void follow_file(int first_file, int last_file, char * argv[]);
 void run(int first_file, int last_file,char *  argv[], long cnt);
 int main(int argc, char *argv[]){
 
@@ -115,10 +119,10 @@ void parse_long(int argc, char* argv[]){
   // Print files according to opts
   if(optind<argc){
     if(follow){
-      follow_file(optind,argc,argv,cnt,is_lines);
+      follow_file(optind,argc,argv);
     }
     else{
-      run(optind,argc,argv,cnt,is_lines);
+      run(optind,argc,argv,cnt);
     }
   }
 
@@ -137,41 +141,17 @@ void run(int first_file, int last_file, char * argv[], long cnt){
     FILE *f = fopen(argv[i],"r");  
     if(!f){
       continue;
-    };
-    //TODO 
-    //add FILE * to list    
-    
-    add(f);
-  
-    //TODO move print_headers to 'print_last'
-
-    if(PRINT_HEADERS){
-      printf("===%s===",argv[i]);
-    }
-    print_last(f,cnt);;
+    };    
+    add(f,argv);
+    print_headers(argv);
+    print_last(f,cnt);
   }
 }
 
-		 
-void follow_file(int first_file, int last_file, char * argv[], long cnt){
-  init_filelist();
-
-// TODO instead call 'run'
-  for(int i = first_file; i < last_file; i++){
-    FILE *f = fopen(argv[i],"r");  
-    if(!f){
-      continue;
-    }
-    add(f);
+void print_headers(char *s){
+  if(PRINT_HEADERS){
+    printf("===%s===",argv[i]);
   }
-  for(FILE * f in file_list){//use static
-    print_last(f,cnt);
-  while(1){
-    for(FILE * f in file_list){
-      print_file(f);
-    }
-  }
-  
 }
 
 void print_last(FILE *f, long cnt){
@@ -185,6 +165,21 @@ void print_last(FILE *f, long cnt){
   }
   print_pos(f,pos);
 }
+		 
+void follow_file(int first_file, int last_file, char * argv[]){
+  
+  run(first_file,last_file,argv,N_LINES);
+
+  while(1){
+    file_node *l = HEAD;
+    while(l != 0 ){
+      print_headers(l->name);
+      print_file(l->f);
+      l=l->next;
+    }
+  }  
+}
+
 
 int print_file(FILE *f){
   char buf [BUF_SIZE];
@@ -283,13 +278,9 @@ void print_last_bytes(FILE *f, long n){
 void print_pos(FILE* f, long pos){
   char buf[BUF_SIZE +1];
   memset(buf,0,BUF_SIZE + 1);
-
-
-  
   if(fseek(f,pos,SEEK_END)){
     perror("print_last fseek error\n");
   }
-
   int r = 0;
   while(r=fread(buf,sizeof(char),BUF_SIZE,f)){
     buf[BUF_SIZE]=0;
@@ -297,6 +288,60 @@ void print_pos(FILE* f, long pos){
     memset(buf,0,BUF_SIZE + 1);
   }
 }
-  
 
+int get_filename(FILE *f,char **name){//for FUTURE versions and FAST computers
+
+  char *proclnk[FNAME_SIZE]={0};
+  char *fullname[FNAME_SIZE]={0};
+  int fd = fileno(f);
+  snprintf(proclnk,FNAME_SIZE-1, "/proc/self/fd/%d", fd);
+  int r = readkink(proclnk,fullname,FNAME_SIZE-1);
+  if(r <= 0){
+    *name=NULL;
+    return -1;
+  }
+  r=min(r,FNAME_SIZE-1);
+  fullname[r] = 0;
+  char *filename = basename(fullname);
+  int len = strnlen(filename,FNAME_SIZE-1);
+  *name = malloc((len + 1) * sizeof(len));
+  strncpy(*name,filename,len);
+  *len[0] = 0;
+  return 0;
+}
+
+
+  
+///////////////////////////////////////////////////////////
+//list_functions
+//////////////////////////////////////////////////////////
+
+void add(FILE * f,char *name){
+   file_node *added = malloc(sizeof(file_node));
+   added->next = NULL;
+   added->file = f;
+   added->name = name;
+
+   if(HEAD == NULL){
+     HEAD = added;
+     TAIL = added;
+   }
+   else{
+     TAIL = TAIL->next = added;
+   }
+ }
+
+ void delete(){
+   file_node *l;
+   l = HEAD;
+   while(l != NULL){
+     file_node t = l -> next;
+     free(l);
+     l = t;
+   }
+   HEAD=TAIL=NULL;
+ }
+
+
+  
   
