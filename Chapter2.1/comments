@@ -20,7 +20,8 @@ print last n chars+opt
 Not Tested:
 TODO:
 find_pos TEST buf[found-buf]->*found
--make folow serveral files`
+-make folow serveral files
+--make conditon ON FILE ADDING
 -dress cod
 
 

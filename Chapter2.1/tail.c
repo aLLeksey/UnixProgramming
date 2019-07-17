@@ -15,17 +15,18 @@
 #define BUF_SIZE 1000
 #endif
 
-#define NLINES 10
+#define N_LINES 10
 #define min(x, y)  ((x) < (y) ? (x) : (y))
 #define FNAME_SIZE 0xFFF
 
-int PRINT_HEADERS = 0;
+int PRINT_HEADERS = 1;
 int IS_LINES = 0;
 
-typedef struct {
+
+typedef struct fn{
   FILE *file;
   char *name;
-  file_node *next;
+  struct fn *next;
 }file_node;
 
 file_node *HEAD = NULL;
@@ -91,11 +92,11 @@ void parse_long(int argc, char* argv[]){
   while((oc = getopt_long(argc,argv,":c:n:fvqh",longopts,NULL)) != -1){
     switch(oc){
     case'c':   
-      is_lines = 0;
+      IS_LINES = 0;
       _optarg=optarg;
       break;
     case 'n':
-      is_lines = 1;
+      IS_LINES = 1;
       _optarg=optarg;
       break;
     case 'f':
@@ -114,7 +115,7 @@ void parse_long(int argc, char* argv[]){
   }
   long cnt = convert(_optarg);
   if( cnt == -1 ){
-    cnt = NLINES;
+    cnt = N_LINES;
   }    
   // Print files according to opts
   if(optind<argc){
@@ -130,9 +131,6 @@ void parse_long(int argc, char* argv[]){
 
 		 
 void run(int first_file, int last_file, char * argv[], long cnt){
-  // TODO add here to list then use 'run' in 'follow_file'
-  //
-  //
   int is_lines = IS_LINES;
   
   for(int i = first_file; i < last_file; i++){
@@ -150,7 +148,7 @@ void run(int first_file, int last_file, char * argv[], long cnt){
 
 void print_headers(char *s){
   if(PRINT_HEADERS){
-    printf("===%s===",argv[i]);
+    printf("===%s===",s);
   }
 }
 
@@ -158,7 +156,7 @@ void print_last(FILE *f, long cnt){
 //TODO add print headers here (is it possible to know filename by file?)
   long pos = 0;
   if(IS_LINES){
-    pos = find_nline(f,cnt); //TODO change to find_line
+    pos = find_nline(f,cnt); //TODO change to find_line // <-???
   }
   else{
     pos = -cnt;	
@@ -173,16 +171,25 @@ void follow_file(int first_file, int last_file, char * argv[]){
   while(1){
     file_node *l = HEAD;
     while(l != 0 ){
-      print_headers(l->name);
-      print_file(l->f);
-      l=l->next;
+      if(file_added(l->file)){
+	print_headers(l->name);
+	print_file(l->file);
+      }
+      l = l -> next;
     }
   }  
 }
 
+int file_added(FILE *f){
+  // TODO MAKE IT WORK (CONDITION NOT RIGHT)
+  return fseek(f,0,SEEK_CUR)!= fseek(f,0,SEEK_END) ? 1 : 0;
+}
 
-int print_file(FILE *f){
+  
+
+int print_file(FILE *f){ 
   char buf [BUF_SIZE];
+  int n = 0;
     while(n = fread(buf,sizeof(char),BUF_SIZE-1,f)){
       n = min(n,BUF_SIZE);
       buf[n] = 0;
@@ -295,7 +302,7 @@ int get_filename(FILE *f,char **name){//for FUTURE versions and FAST computers
   char *fullname[FNAME_SIZE]={0};
   int fd = fileno(f);
   snprintf(proclnk,FNAME_SIZE-1, "/proc/self/fd/%d", fd);
-  int r = readkink(proclnk,fullname,FNAME_SIZE-1);
+  int r = readlink(proclnk,fullname,FNAME_SIZE-1);
   if(r <= 0){
     *name=NULL;
     return -1;
@@ -306,7 +313,7 @@ int get_filename(FILE *f,char **name){//for FUTURE versions and FAST computers
   int len = strnlen(filename,FNAME_SIZE-1);
   *name = malloc((len + 1) * sizeof(len));
   strncpy(*name,filename,len);
-  *len[0] = 0;
+  *name[len] = 0;
   return 0;
 }
 
@@ -335,7 +342,7 @@ void add(FILE * f,char *name){
    file_node *l;
    l = HEAD;
    while(l != NULL){
-     file_node t = l -> next;
+     file_node* t = l -> next;
      free(l);
      l = t;
    }
