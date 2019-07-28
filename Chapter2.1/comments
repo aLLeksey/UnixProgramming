@@ -20,8 +20,8 @@ print last n chars+opt
 Not Tested:
 TODO:
 find_pos TEST buf[found-buf]->*found
--make folow serveral files
---make conditon ON FILE ADDING
+-make folow [serveral] file[s] 
+--make aftwr truncation to print file from [-N_LINES](not working)([should print from BEG?]
 -dress cod
 
 

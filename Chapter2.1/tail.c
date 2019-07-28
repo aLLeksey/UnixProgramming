@@ -27,6 +27,7 @@ typedef struct fn{
   FILE *file;
   char *name;
   struct fn *next;
+  long position;
 }file_node;
 
 file_node *HEAD = NULL;
@@ -148,12 +149,12 @@ void run(int first_file, int last_file, char * argv[], long cnt){
 
 void print_headers(char *s){
   if(PRINT_HEADERS){
-    printf("===%s===",s);
+    printf("===%s===\n",s);
   }
 }
 
 void print_last(FILE *f, long cnt){
-//TODO add print headers here (is it possible to know filename by file?)
+
   long pos = 0;
   if(IS_LINES){
     pos = find_nline(f,cnt); //TODO change to find_line // <-???
@@ -181,19 +182,47 @@ void follow_file(int first_file, int last_file, char * argv[]){
 }
 
 int file_added(FILE *f){
-  // TODO MAKE IT WORK (CONDITION NOT RIGHT)
-  return fseek(f,0,SEEK_CUR)!= fseek(f,0,SEEK_END) ? 1 : 0;
+  long tell_cur = ftell(f);
+  fseek(f,0,SEEK_END);
+  long tell_end = ftell(f);
+  
+  if(tell_cur != tell_end){
+    printf("%d %d\n",tell_cur,tell_end);
+    
+    if(tell_cur > tell_end){    
+      printf("file truncated");
+      
+      fseek(f,0,SEEK_END);
+      //change position to SEEK_END - cnt
+      int cnt = N_LINES;
+      long pos = 0;
+      if(IS_LINES){
+	pos = find_nline(f,cnt); //TODO change to find_line // <-???
+      }
+      else{
+	pos = -cnt;	
+      }
+      fseek(f,pos,SEEK_END);
+    }
+    else{
+      fseek(f,tell_cur,SEEK_SET);      
+    }
+    return 1;
+  }
+  return  0;
 }
 
   
 
 int print_file(FILE *f){ 
   char buf [BUF_SIZE];
+  memset(buf,0,BUF_SIZE);
   int n = 0;
     while(n = fread(buf,sizeof(char),BUF_SIZE-1,f)){
       n = min(n,BUF_SIZE);
       buf[n] = 0;
       fwrite(buf,sizeof(char),n, stdout);
+      memset(buf,0,BUF_SIZE);
   }
 }
 		 
@@ -274,11 +303,11 @@ int find_pos(long *n, char* buf){
 }
 
 
-void print_last_lines(FILE *f, long n){
+void print_last_lines(FILE *f, long n){//NOT USED???
   print_last(f,find_nline(f,n));
 }
 
-void print_last_bytes(FILE *f, long n){
+void print_last_bytes(FILE *f, long n){//NOT USED???
   print_last(f, -n);  
 }
 
@@ -286,7 +315,8 @@ void print_pos(FILE* f, long pos){
   char buf[BUF_SIZE +1];
   memset(buf,0,BUF_SIZE + 1);
   if(fseek(f,pos,SEEK_END)){
-    perror("print_last fseek error\n");
+    perror("print_pos fseek error\n");
+    printf("pos=%d\n",pos);
   }
   int r = 0;
   while(r=fread(buf,sizeof(char),BUF_SIZE,f)){
