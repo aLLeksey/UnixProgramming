@@ -185,12 +185,13 @@ int file_added(FILE *f){
   long tell_cur = ftell(f);
   fseek(f,0,SEEK_END);
   long tell_end = ftell(f);
-  
+#ifdef DEBUG
   if(tell_cur != tell_end){
-    printf("%d %d\n",tell_cur,tell_end);
+    /*printf("%d %d\n",tell_cur,tell_end);*/
     
     if(tell_cur > tell_end){    
       printf("file truncated");
+#endif
       
       fseek(f,0,SEEK_END);
       //change position to SEEK_END - cnt
@@ -237,7 +238,7 @@ long find_nline(FILE *f, long n_lines){
   char buff[BUF_SIZE + 1];
   
   long n = n_lines;
-  long pos = 0;
+  long pos = 0; 
   int i = 1;
   long len = BUF_SIZE;
   int start = 0;
