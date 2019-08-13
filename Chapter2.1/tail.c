@@ -185,25 +185,16 @@ int file_added(FILE *f){
   long tell_cur = ftell(f);
   fseek(f,0,SEEK_END);
   long tell_end = ftell(f);
-#ifdef DEBUG
+
   if(tell_cur != tell_end){
-    /*printf("%d %d\n",tell_cur,tell_end);*/
-    
-    if(tell_cur > tell_end){    
-      printf("file truncated");
-#endif
-      
-      fseek(f,0,SEEK_END);
-      //change position to SEEK_END - cnt
-      int cnt = N_LINES; 
-      long pos = 0;
-      if(IS_LINES){
-	pos = find_nline(f,cnt); //TODO change to find_line // <-???
-      }
-      else{
-	pos = -cnt;	
-      }
-      fseek(f,pos,SEEK_END);
+    printf("%d %d\n",tell_cur,tell_end);
+    if(tell_cur > tell_end){
+     
+      //file truncated, nothing added
+      if(tell_end == 0)
+	printf("file truncated");    
+      fseek(f,0,SEEK_SET);
+      return 0;
     }
     else{
       fseek(f,tell_cur,SEEK_SET);      
@@ -212,6 +203,19 @@ int file_added(FILE *f){
   }
   return  0;
 }
+int find_n_lines_conc(FILE *f){
+  fseek(f,0,SEEK_END);
+  //change position to SEEK_END - cnt
+  int cnt = N_LINES; 
+  long pos = 0;
+  if(IS_LINES){
+    pos = find_nline(f,cnt); //TODO change to find_line // <-???
+  }
+  else{
+    pos = -cnt;	
+  }
+}
+
 
   
 
