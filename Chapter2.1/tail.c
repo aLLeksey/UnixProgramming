@@ -195,7 +195,7 @@ int file_added(FILE *f){
       
       fseek(f,0,SEEK_END);
       //change position to SEEK_END - cnt
-      int cnt = N_LINES;
+      int cnt = N_LINES; 
       long pos = 0;
       if(IS_LINES){
 	pos = find_nline(f,cnt); //TODO change to find_line // <-???
