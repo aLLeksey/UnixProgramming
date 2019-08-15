@@ -193,7 +193,7 @@ int file_added(FILE *f){
       //file truncated, nothing added
       if(tell_end == 0)
 	printf("file truncated");    
-      fseek(f,0,SEEK_SET);
+      fseek(f,0,SEEK_SET); //if trunct. => start from begining
       return 0;
     }
     else{
