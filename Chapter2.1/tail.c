@@ -35,6 +35,7 @@ file_node *TAIL = NULL;
 
 int find_pos(long *n, char* buf);
 long find_nline(FILE *f, long n_lines);
+long find_nline_trunc(FILE *f);
 void print_last_lines(FILE *f, long n);
 void print_last_bytes(FILE *f, long n);
 void print_pos(FILE* f, long pos);
@@ -189,11 +190,16 @@ int file_added(FILE *f){
   if(tell_cur != tell_end){
     printf("%d %d\n",tell_cur,tell_end);
     if(tell_cur > tell_end){
-     
-      //file truncated, nothing added
-      if(tell_end == 0)
-	printf("file truncated");    
-      fseek(f,0,SEEK_SET); //if trunct. => start from begining
+      /*
+      printf("file truncated");
+      //if trunct stat -N_LINES from begining
+      fseek(f,0,SEEK_SET);
+      long pos = find_nline_trunc(f);
+      fseek(f,pos,SEEK_SET);
+      */
+      //OR
+      //if trunct. => start from begining
+      fseek(f,0,SEEK_SET);
       return 0;
     }
     else{
@@ -203,7 +209,7 @@ int file_added(FILE *f){
   }
   return  0;
 }
-int find_n_lines_conc(FILE *f){
+long find_nline_trunc(FILE *f){  // TODO test if truncated half-file
   fseek(f,0,SEEK_END);
   //change position to SEEK_END - cnt
   int cnt = N_LINES; 
@@ -214,6 +220,7 @@ int find_n_lines_conc(FILE *f){
   else{
     pos = -cnt;	
   }
+  return pos;
 }
 
 
