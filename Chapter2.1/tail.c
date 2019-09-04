@@ -160,8 +160,8 @@ void print_last(FILE *f, long cnt){
   if(IS_LINES){
     pos = find_nline(f,cnt); //TODO change to find_line // <-???
   }
-  else{
-    pos = -cnt;	
+  else{    
+    pos = -cnt;
   }
   print_pos(f,pos);
 }
@@ -324,11 +324,12 @@ void print_last_bytes(FILE *f, long n){//NOT USED???
 }
 
 void print_pos(FILE* f, long pos){
-  char buf[BUF_SIZE +1];
+  char buf[BUF_SIZE + 1];
   memset(buf,0,BUF_SIZE + 1);
   if(fseek(f,pos,SEEK_END)){
     perror("print_pos fseek error\n");
     printf("pos=%d\n",pos);
+    fseek(f,0,SEEK_SET);
   }
   int r = 0;
   while(r=fread(buf,sizeof(char),BUF_SIZE,f)){
