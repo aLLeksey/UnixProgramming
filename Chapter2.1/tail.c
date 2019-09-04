@@ -1,7 +1,7 @@
 //TODO -> BUGS
 
-#define DEBUG
-#define TEST
+//#define DEBUG
+//#define TEST
 
 #include<stdio.h>
 #include<string.h>
@@ -142,8 +142,8 @@ void run(int first_file, int last_file, char * argv[], long cnt){
     if(!f){
       continue;
     };    
-    add(f,argv);
-    print_headers(argv);
+    add(f,argv[i]);
+    print_headers(argv[i]);
     print_last(f,cnt);
   }
 }
