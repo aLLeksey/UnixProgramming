@@ -12,19 +12,14 @@ TODO
 
 tail.c //use xxd
 Not working:
-n=10 not prints tail of file(test.2) if file<10 lines
-FILE NAMES
+-
 Working:
-tail -n -c (lines/bytes)
-print last n lines+opt
-print last n chars+opt
-Not Tested:
+-n --lines
+-c --bytes
+-f (file names/s)
 TODO:
--FILE NAMES
--errors in execution
-//-find_pos TEST buf[found-buf]->*found 
 -dress code
-
+DONE
 
 
 od.c

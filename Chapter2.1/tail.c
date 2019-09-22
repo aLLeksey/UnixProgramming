@@ -74,13 +74,15 @@ long convert(char *arg){
 		 
 // parcer
 void parse_long(int argc, char* argv[]){
-  int follow = 0;
   if(argc <= 1){
     return;
   }
+  
+  int follow = 0;
   int is_lines = 0;
   int oc;
   char * _optarg = NULL;
+
   struct  option longopts[] = {
 			       {"bytes",required_argument,NULL,'c'},
 			       {"lines",required_argument,NULL,'n'},
@@ -118,10 +120,23 @@ void parse_long(int argc, char* argv[]){
   long cnt = convert(_optarg);
   if( cnt == -1 ){
     cnt = N_LINES;
-  }    
+  }
+
+/*
+#ifdef DEBUG
+  printf("optind=%d, argc= %d\n",optind,argc);
+  for(int i = 0; i <argc; i++){
+    printf("%s\n",argv[i]);
+  }
+#endif
+*/
+  
   // Print files according to opts
+
   if(optind<argc){
     if(follow){
+      ///TODO
+      // TODO add cnt as argument
       follow_file(optind,argc,argv);
     }
     else{
@@ -134,6 +149,7 @@ void parse_long(int argc, char* argv[]){
 		 
 void run(int first_file, int last_file, char * argv[], long cnt){
   int is_lines = IS_LINES;
+
   
   for(int i = first_file; i < last_file; i++){
     long pos = 0;
@@ -141,7 +157,7 @@ void run(int first_file, int last_file, char * argv[], long cnt){
     FILE *f = fopen(argv[i],"r");  
     if(!f){
       continue;
-    };    
+    };
     add(f,argv[i]);
     print_headers(argv[i]);
     print_last(f,cnt);
@@ -155,18 +171,25 @@ void print_headers(char *s){
 }
 
 void print_last(FILE *f, long cnt){
-
+  
   long pos = 0;
+  
   if(IS_LINES){
+    ///TODO BUG
     pos = find_nline(f,cnt); //TODO change to find_line // <-???
   }
   else{    
     pos = -cnt;
   }
+#ifdef DEBUG
+  printf("cnt = %ld\n", cnt);
+  printf("%ld print_last position\n",pos);
+#endif
   print_pos(f,pos);
 }
 		 
 void follow_file(int first_file, int last_file, char * argv[]){
+
   
   run(first_file,last_file,argv,N_LINES);
 
@@ -188,7 +211,9 @@ int file_added(FILE *f){
   long tell_end = ftell(f);
 
   if(tell_cur != tell_end){
+#ifdef DEBUG
     printf("%d %d\n",tell_cur,tell_end);
+#endif
     if(tell_cur > tell_end){
       /*
       printf("file truncated");
@@ -240,7 +265,7 @@ int print_file(FILE *f){
 		 
 
 		 
-
+/// TODO BUG
 long find_nline(FILE *f, long n_lines){
   n_lines++; // begining -> (n + 1) * '\n';
   long old = ftell(f);\
@@ -284,7 +309,7 @@ long find_nline(FILE *f, long n_lines){
     pos = -pos;
     // restore file position before the call
     fseek(f,old,SEEK_SET);
-    
+    return pos;
   }
   else{
     // success
@@ -327,8 +352,10 @@ void print_pos(FILE* f, long pos){
   char buf[BUF_SIZE + 1];
   memset(buf,0,BUF_SIZE + 1);
   if(fseek(f,pos,SEEK_END)){
+#ifdef DEBUG
     perror("print_pos fseek error\n");
     printf("pos=%d\n",pos);
+#endif
     fseek(f,0,SEEK_SET);
   }
   int r = 0;
