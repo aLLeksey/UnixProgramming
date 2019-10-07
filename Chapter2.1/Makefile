@@ -1,4 +1,4 @@
-file = tail
+file = od
 all: $(file)
 
 $(file): $(file).c
