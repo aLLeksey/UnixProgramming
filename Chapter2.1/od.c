@@ -2,14 +2,17 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+#define DEBUG
+
 int open_file(char *file_name);
 void parse();
 void work(FILE *file);
 
-void to_bin(char **sp, char c);
+
 void to_oct(char **sp, char c);
 void to_hex(char **sp, char c);
 
+typedef (*Convert)(char **, char);
 
 
 int main(){
@@ -21,8 +24,16 @@ void work(FILE *file){
   char c;
   while((c = fgetc(file)) != EOF){
     char *s = NULL;
-    to_hex(&s,c);
-    printf("%s\t",s);
+    // Not working
+    //to_hex(&s,c);
+    Convert con = to_hex;
+    con(&s,c);
+    printf("%s\n",s);
+    printf("%02x\n",c);
+#ifdef DEBUG
+    printf("la\n");
+    printf("c=%c\n",c);
+#endif
     free(s);
   }
   
@@ -43,20 +54,14 @@ void parse(){
   // if file_name == '-' => no file
 }
 
-void to_bin(char **sp, char c){
-  *sp = malloc(sizeof(char) * sizeof(char));
-  //itoa(c,*sp,2);
-  // TODO
-  // write custom converter 2 b
-}
 
 void to_oct(char **sp, char c){
   *sp = malloc(sizeof(char) * 3);
-  snprintf(*sp,3,"%03o");
+  snprintf(*sp,3,"%03o",c);
    
 }
 
 void to_hex(char **sp, char c){
-  *sp = malloc(sizeof(char) * 2);
-  snprintf(*sp,2,"02x");
+  *sp = malloc(sizeof(char) * 3);
+  snprintf(*sp,3,"%02x",c);
 }
