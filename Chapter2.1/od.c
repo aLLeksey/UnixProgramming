@@ -4,38 +4,47 @@
 
 #define DEBUG
 
+
+typedef (*Convert)(char **, char);
+
 int open_file(char *file_name);
 void parse();
-void work(FILE *file);
+void work(FILE *file,Convert con);
 
 
 void to_oct(char **sp, char c);
 void to_hex(char **sp, char c);
 
-typedef (*Convert)(char **, char);
 
 
 int main(){
-  work(stdin);
+  work(stdin,to_hex);
   return 0;
 }
 
-void work(FILE *file){
+// array of structures of string ??? how save in memory ???
+// save chars and then in moment all 8????
+
+void work(FILE *file,Convert con){
   char c;
+  int i = 0;
   while((c = fgetc(file)) != EOF){
     char *s = NULL;
-    // Not working
-    //to_hex(&s,c);
-    Convert con = to_hex;
     con(&s,c);
-    printf("%s\n",s);
-    printf("%02x\n",c);
-#ifdef DEBUG
-    printf("la\n");
-    printf("c=%c\n",c);
-#endif
+    if(i % 16 == 0){
+      printf("%7d ",i);
+    }
+    printf("%s ",s);
     free(s);
+    i++;
+    if(i%16 == 0){ // i != 0
+      printf("\n");
+    }
   }
+  if(i%16!=0){
+    printf("\n");
+  }
+  printf("%7d",i);
   
 }
 
