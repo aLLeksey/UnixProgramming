@@ -42,11 +42,30 @@ void work(FILE *file,Convert con){
     process(a,con,i);
   }
 }
-
+//what to do if in on time many bytes(chars)????
+/*
+1
+2
+3
+4
+5
+6
+7
+      0 31 0a 32 0a 33 0a 34 0a 35 0a 36 37 38 
+     13
+8
+9
+10
+11
+12
+0a 0a 38 
+     16 0a 39 0a 31 30 0a 31 31 31 32 
+     26
+*/
 void process(char *s, Convert con, int len){
   static int i = 0;
   int j = 0;
-  while(j < 0x10 && j < len && s[j] != 0){
+  while(j <= 0x10 && j < len && s[j] != 0){
     char c = s[j];
     char *s = NULL;
     con(&s,c);
