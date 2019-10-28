@@ -22,32 +22,50 @@ int main(){
   return 0;
 }
 
-// array of structures of string ??? how save in memory ???
-// save chars and then in moment all 8????
+
+
 
 void work(FILE *file,Convert con){
-  char c;
+  char a[0xa];
+  a[0x10] = 0;
+  while(1){
   int i = 0;
-  while((c = fgetc(file)) != EOF){
+    while(i < 0x10){
+      char c = fgetc(file);
+      if(c == EOF){
+	process(a,con,i);
+	return;
+      }
+      a[i] = c;
+      i++;
+    }
+    process(a,con,i);
+  }
+}
+
+void process(char *s, Convert con, int len){
+  static int i = 0;
+  int j = 0;
+  while(j < 0x10 && j < len && s[j] != 0){
+    char c = s[j];
     char *s = NULL;
     con(&s,c);
-    if(i % 16 == 0){
+    if(i % 0x10 == 0){
       printf("%7d ",i);
     }
     printf("%s ",s);
     free(s);
     i++;
-    if(i%16 == 0){ // i != 0
+    if(i%0x10 == 0){
       printf("\n");
     }
+    j++;
   }
-  if(i%16!=0){
+  if(i%0x10 != 0){
     printf("\n");
   }
   printf("%7d",i);
-  
 }
-
 
 int open_file(char *file_name){
   
