@@ -10,6 +10,7 @@ typedef (*Convert)(char **, char);
 int open_file(char *file_name);
 void parse();
 void work(FILE *file,Convert con);
+int  process(char *str, Convert con, int len);
 
 
 void to_oct(char **sp, char c);
@@ -21,11 +22,6 @@ int main(){
   work(stdin,to_hex);
   return 0;
 }
-/*
-1234567890abcdefgh
-      0 31 32 33 34 35 36 37 38 39 30 61 62 63 64 65 66 
-     16
-*/
 
 
 
@@ -37,7 +33,8 @@ void work(FILE *file,Convert con){
     while(i < 0x10){
       char c = fgetc(file);
       if(c == EOF){
-	process(a,con,i);
+	int k = process(a,con,i);
+	printf("%07o\n",k);
 	return;
       }
       a[i] = c;
@@ -47,16 +44,14 @@ void work(FILE *file,Convert con){
   }
 }
 
-void process(char *s, Convert con, int len){
+int  process(char *str, Convert con, int len){
   static int i = 0;
+  printf("%07o ",i);
   int j = 0;
-  while(j <= 0x10 && j < len && s[j] != 0){
-    char c = s[j];
+  while(j <= 0x10 && j < len && str[j] != 0){
+    char c = str[j];
     char *s = NULL;
     con(&s,c);
-    if(i % 0x10 == 0){
-      printf("%7d ",i);
-    }
     printf("%s ",s);
     free(s);
     i++;
@@ -68,7 +63,8 @@ void process(char *s, Convert con, int len){
   if(i%0x10 != 0){
     printf("\n");
   }
-  printf("%7d",i);
+
+  return  i;
 }
 
 int open_file(char *file_name){
