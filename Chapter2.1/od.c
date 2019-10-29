@@ -21,12 +21,16 @@ int main(){
   work(stdin,to_hex);
   return 0;
 }
-
+/*
+1234567890abcdefgh
+      0 31 32 33 34 35 36 37 38 39 30 61 62 63 64 65 66 
+     16
+*/
 
 
 
 void work(FILE *file,Convert con){
-  char a[0xa];
+  char a[0x11];
   a[0x10] = 0;
   while(1){
   int i = 0;
@@ -42,26 +46,7 @@ void work(FILE *file,Convert con){
     process(a,con,i);
   }
 }
-//what to do if in on time many bytes(chars)????
-/*
-1
-2
-3
-4
-5
-6
-7
-      0 31 0a 32 0a 33 0a 34 0a 35 0a 36 37 38 
-     13
-8
-9
-10
-11
-12
-0a 0a 38 
-     16 0a 39 0a 31 30 0a 31 31 31 32 
-     26
-*/
+
 void process(char *s, Convert con, int len){
   static int i = 0;
   int j = 0;
