@@ -1,16 +1,28 @@
 #include<unistd.h>
 #include<stdio.h>
 #include<stdlib.h>
+#include<getopt.h>
 
 #define DEBUG
 
 
-typedef (*Convert)(char **, char);
+/*
+USAGE 
+od - 
+^from std io
+od FILENAME
+^from FILENAME
+
+ */
+
+typedef void(*Convert)(char **, char);
+typedef enum endian {big,little} endian;
+
 
 FILE* open_file(char *file_name);
 void  parse();
-void  work(FILE *file,Convert con, int indian);
-int   process(char *str, Convert con, int len, int indian);
+void  work(FILE *file,Convert con, endian e);
+int   process(char *str, Convert con, int len, endian e);
 
 
 void to_oct(char **sp, char c);
@@ -19,8 +31,7 @@ void to_hex(char **sp, char c);
 
 
 int main(){
-  work(stdin,to_hex,0
-       );
+  work(stdin,to_hex,0);
   return 0;
 }
 
@@ -34,19 +45,30 @@ void parse_long(int argc, char* argv[]){
   int oc;
   FILE *f=NULL;
   char * _optarg = NULL;
-  int endian = 0;
+ 
+  endian e = big;
   Convert con;
   
-  struct option longopts[] {
+  struct option longopts[] = {
     {"endian",required_argument,NULL,NULL},
-      {"help",no_argument,NULL,'h'}
+    {"help",no_argument,NULL,'h'}
   };
-  
-  while((oc = getopt_long(argc,argv,":-xoh",longopts,NULL)) != -1){
+  // CHANGE get_opt->get_opt_only
+  /*
+int getopt_long(int argc, char * const argv[],
+	const char *optstring,
+	const struct option *longopts, int *longindex);
+
+int getopt_long_only(int argc, char * const argv[],
+	const char *optstring,
+	const struct option *longopts, int *longindex);
+  */
+  while((oc = getopt_long_only(argc,argv,":-xoh",longopts,NULL)) != -1){
     switch(oc){
     case '-':
       f=stdin;
       break;
+      
     case 'endian':
       _optarg=optarg;
       //_optarg[0] = '=';
@@ -57,18 +79,21 @@ void parse_long(int argc, char* argv[]){
 	exit(0);
       }
       if(a){
-	indian = 0;
+        e = big;
       }
       else{
-	indian = little;
+	e = little;
       }
       break;
+      
     case 'x':
       con=to_hex;
       break;
+      
     case 'o':
-      con-to_oct;
+      con=to_oct;
       break;
+      
     default:
       "Cant rcognize any options");
       
@@ -77,7 +102,8 @@ void parse_long(int argc, char* argv[]){
   if(!f){
     f=open_file(argv[optind]);
   }
-  work(f,con,indian);      while(1){
+  work(f,con,endian);
+  while(1){
   int i = 0;
     while(i < 0x10){
       char c = fgetc(file);
@@ -168,7 +194,7 @@ void swap(char *a, char *b){
   b = t;
 }
 
-swap_indian(char *a, int len){
+void swap_indian(char *a, int len){
   if(len%2!=0){
     len = len >> 1;
     len = len << 1;
