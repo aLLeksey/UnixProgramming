@@ -30,3 +30,19 @@ displaing  working
 options(!!!)
 -
 tt.c
+
+
+enum {
+        OPT_ARGUMENT1 = 1000,
+        OPT_ARGUMENT2,
+        OPT_ARGUMENT3
+};
+
+static struct option long_options[] = {
+        {"argument1", required_argument, 0,  OPT_ARGUMENT1 },
+        {"argument2", required_argument, 0,  OPT_ARGUMENT2 },
+        {"argument3", required_argument, 0,  OPT_ARGUMENT3 },
+        {0, 0,  0, 0}
+};
+
+It is better to start the value from beyond the ASCII range so as not to clash with short options (which you don't have in this case) or special characters getopt_long() returns.

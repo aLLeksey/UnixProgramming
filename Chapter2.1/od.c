@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<getopt.h>
+#include<string.h>
 
 #define DEBUG
 
@@ -72,8 +73,8 @@ int getopt_long_only(int argc, char * const argv[],
     case 'endian':
       _optarg=optarg;
       //_optarg[0] = '=';
-      int a = strstr(_optarg,"big");
-      int b = strstr(_optarg,"little");
+      char *a = strstr(_optarg,"big");
+      char *b = strstr(_optarg,"little");
       if(a&&b||!(a||b)){
 	perror("wrong option");
 	exit(0);
