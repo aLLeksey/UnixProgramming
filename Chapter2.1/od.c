@@ -17,7 +17,7 @@ od FILENAME
  */
 
 typedef void(*Convert)(char **, char);
-typedef enum endian {big,little} endian;
+typedef enum endian {big=0,little=1} endian;
 
 
 FILE* open_file(char *file_name);
@@ -46,15 +46,24 @@ void parse_long(int argc, char* argv[]){
   int oc;
   FILE *f=NULL;
   char * _optarg = NULL;
+  char *a = NULL;
+  char *b = NULL;
  
   endian e = big;
   Convert con;
+
+
+  enum{
+    OPT_ARGUMENT1 = 10000,
+    OPT_ARGUMENT2,
+    OPT_ARGUMENT3
+  };
   
   struct option longopts[] = {
-    {"endian",required_argument,NULL,NULL},
+    {"endian",required_argument,NULL,OPT_ARGUMENT1},
     {"help",no_argument,NULL,'h'}
   };
-  // CHANGE get_opt->get_opt_only
+
   /*
 int getopt_long(int argc, char * const argv[],
 	const char *optstring,
@@ -70,11 +79,10 @@ int getopt_long_only(int argc, char * const argv[],
       f=stdin;
       break;
       
-    case 'endian':
-      _optarg=optarg;
-      //_optarg[0] = '=';
-      char *a = strstr(_optarg,"big");
-      char *b = strstr(_optarg,"little");
+    case 10000:
+      _optarg=optarg;;
+      a = strstr(_optarg,"big");
+      b = strstr(_optarg,"little");
       if(a&&b||!(a||b)){
 	perror("wrong option");
 	exit(0);
@@ -96,37 +104,40 @@ int getopt_long_only(int argc, char * const argv[],
       break;
       
     default:
-      "Cant rcognize any options");
+      printf("Cant recognize any options");
+      exit(0);
       
+    }
   }
+    
   //TODO make 'indian' optop work*xgange indaaan>
   if(!f){
     f=open_file(argv[optind]);
   }
-  work(f,con,endian);
+  work(f,con,e);
   while(1){
   int i = 0;
     while(i < 0x10){
-      char c = fgetc(file);
+      char c = fgetc(f);
       if(c == EOF){
-	int k = process(a,con,i,indian);
+	int k = process(a,con,i,e);
 	printf("%07o\n",k);
 	return;
       }
       a[i] = c;
       i++;
     }
-    process(a,con,i,indian);
+    process(a,con,i,e);
   }
 }
 
-int  process(char *str, Convert con, int len, int indian){
+int  process(char *str, Convert con, int len, endian e){
   int sub = 0;
   if(len%2!=0&&len<0x10){
     str[len++]=0;
     sub = 1;
   }
-  if(indian){
+  if(e){
     swap_indian();
   }
     

@@ -31,6 +31,9 @@ options(!!!)
 -
 tt.c
 
+TODO:
+add 'work' function
+compills not links
 
 enum {
         OPT_ARGUMENT1 = 1000,
