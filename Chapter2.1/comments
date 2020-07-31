@@ -49,3 +49,12 @@ static struct option long_options[] = {
 };
 
 It is better to start the value from beyond the ASCII range so as not to clash with short options (which you don't have in this case) or special characters getopt_long() returns.
+
+C-g cancel command
+
+indian->endian (!!!)
+
+
+
+Long options not working. Not parsing - as option.
+longindex?

@@ -31,8 +31,9 @@ void to_hex(char **sp, char c);
 
 
 
-int main(){
-  work(stdin,to_hex,0);
+int main(char argc, char* argv[]){
+  //work(stdin,to_hex,0);
+  parse_long(argc,argv);
   return 0;
 }
 
@@ -55,13 +56,14 @@ void parse_long(int argc, char* argv[]){
 
   enum{
     OPT_ARGUMENT1 = 10000,
-    OPT_ARGUMENT2,
+    OPT_ARGUMENT2 = 10001,
     OPT_ARGUMENT3
   };
   
   struct option longopts[] = {
     {"endian",required_argument,NULL,OPT_ARGUMENT1},
-    {"help",no_argument,NULL,'h'}
+    {"help",no_argument,NULL,'h'},
+    {"-",no_argument,NULL,OPT_ARGUMENT2}
   };
 
   /*
@@ -73,13 +75,14 @@ int getopt_long_only(int argc, char * const argv[],
 	const char *optstring,
 	const struct option *longopts, int *longindex);
   */
-  while((oc = getopt_long_only(argc,argv,":-xoh",longopts,NULL)) != -1){
+  while((oc = getopt_long_only(argc,argv,"hox",longopts,NULL)) != -1){
     switch(oc){
-    case '-':
+    case :
       f=stdin;
+      printf("BB\n");
       break;
       
-    case 10000:
+    case OPT_ARGUMENT1:
       _optarg=optarg;;
       a = strstr(_optarg,"big");
       b = strstr(_optarg,"little");
@@ -102,19 +105,30 @@ int getopt_long_only(int argc, char * const argv[],
     case 'o':
       con=to_oct;
       break;
-      
+
+    case 'h':
+      printf("Options are \n"
+"-                  :input from stdin\n"
+"file_name[s]         :input from file name[s]\n"
+"--endian={big;little}:set endian\n"
+"-x                   :to hexadecimal\n"
+"-o                   :to octal\n"
+"-d                   :to decimal\n"
+"-a                   :select named characters, ignoring high-order bit\n"
+"-c                   :select printable characters or backslash escapes\n");
+      break;
     default:
       printf("Cant recognize any options");
       exit(0);
       
     }
   }
-    
-  //TODO make 'indian' optop work*xgange indaaan>
+  
   if(!f){
+    printf("Lala f == %d\n",f);
     f=open_file(argv[optind]);
   }
-  work(f,con,e);
+  //work(f,con,e);
   while(1){
   int i = 0;
     while(i < 0x10){
@@ -171,13 +185,9 @@ int  process(char *str, Convert con, int len, endian e){
 }
 
 FILE* open_file(char *file_name){
-  
-  // fomm FiLE* to int
-  // fileno(f)
-
-  //open
-  FILE *f = fopen(file_name,"r");
+  FILE *f = fopen(file_name,"rw");
   if(!f){
+  // fomm FiLE* to i
     perror("Cant open file"); // %s",file_name);
     exit(0);
   }
@@ -201,9 +211,9 @@ void to_hex(char **sp, char c){
 }
 void swap(char *a, char *b){
   char t;
-  t = a;
-  a = b;
-  b = t;
+  t = *a;
+  *a = *b;
+  *b = t;
 }
 
 void swap_indian(char *a, int len){
