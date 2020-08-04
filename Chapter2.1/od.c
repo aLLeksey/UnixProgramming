@@ -63,7 +63,8 @@ void parse_long(int argc, char* argv[]){
   struct option longopts[] = {
     {"endian",required_argument,NULL,OPT_ARGUMENT1},
     {"help",no_argument,NULL,'h'},
-    {"-",no_argument,NULL,OPT_ARGUMENT2}
+    {"-",no_argument,NULL,OPT_ARGUMENT2},
+    {NULL, 0, 0, 0}
   };
 
   /*
@@ -75,9 +76,9 @@ int getopt_long_only(int argc, char * const argv[],
 	const char *optstring,
 	const struct option *longopts, int *longindex);
   */
-  while((oc = getopt_long_only(argc,argv,"hox",longopts,NULL)) != -1){
+  while((oc = getopt_long_only(argc,argv,"-hox",longopts,NULL)) != -1){
     switch(oc){
-    case :
+    case '-':
       f=stdin;
       printf("BB\n");
       break;
@@ -106,7 +107,7 @@ int getopt_long_only(int argc, char * const argv[],
       con=to_oct;
       break;
 
-    case 'h':
+    case 'h':case'?':
       printf("Options are \n"
 "-                  :input from stdin\n"
 "file_name[s]         :input from file name[s]\n"
@@ -118,6 +119,7 @@ int getopt_long_only(int argc, char * const argv[],
 "-c                   :select printable characters or backslash escapes\n");
       break;
     default:
+      printf("%c %d\n",oc,oc);
       printf("Cant recognize any options");
       exit(0);
       
