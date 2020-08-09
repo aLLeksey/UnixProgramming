@@ -1,0 +1,3 @@
+create two users with same id inpossible in on time
+if first delete than second with same id have access to his files(by id) except home dir
+if delete than create same user -> same home dir
