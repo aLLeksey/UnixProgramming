@@ -24,12 +24,13 @@ main(int argc, char** argv){
  */
 void do_ls(char *dirname){
   DIR *dir_ptr;
+  struct dirent *direntptr;
   if((dir_ptr = opendir(dirname)) == NULL){
     fprintf(stderr,"ls1:cannot open %s\n", dirname);
   }
   else{
-    while((direntp = readdir(dir_ptr)) !=NULL){
-      do_stat(direntr -> d_name);
+    while((direntptr = readdir(dir_ptr)) !=NULL){
+      do_stat(direntptr -> d_name);
     }
     closedir(dir_ptr);
   }
@@ -46,13 +47,13 @@ void do_stat(char *filename){
 }
 
 /*
- *  show info of 'filename' from stuct. *info_p
+ *  show info of 'filename' from stuct *info_p
  */
 void show_file_info(char *filename, struct stat *info_p){
   char *uid_to_name(), *ctime(), *gid_to_name(), *filemode();
   void mode_to_letters();
   char modestr[11];
-  mode_to_letters(info->st_mode,modestr);
+  mode_to_letters(info_p->st_mode,modestr);
   printf("%s", modestr);
   printf("%4d", (int)info_p->st_nlink);
   printf("%-8s", uid_to_name(info_p->st_uid));
@@ -119,14 +120,14 @@ char *uid_to_name(uid_t uid){
  * return pointer to grpup_name. using getgrgid(3)
  */
 char *gid_to_name(gid_t gid){
-  struct *getgrdid(), *grp_ptr;
+  struct group *getgrid(), *grp_ptr;
   static char numstr[10];
 
-  if((get_ptr = getgrid(gid)) == NULL){
+  if((grp_ptr = getgrid(gid)) == NULL){
     //?????
     snprintf(numstr,sizeof(numstr)/sizeof(numstr[0]),"% d", gid);
     return numstr;
   }
-  else 
-    return gpr_ptr->gr_name
+  else
+    return grp_ptr->gr_name;
 }
