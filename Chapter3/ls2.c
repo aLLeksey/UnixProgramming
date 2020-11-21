@@ -2,6 +2,7 @@
 #include<sys/types.h>
 #include<dirent.h>
 #include<sys/stat.h>
+#include<unistd.h>
 
 void do_ls(char *);
 void do_stat(char *);
@@ -11,26 +12,59 @@ char *guid_to_name(gid_t);
 
 char *prog_name;
 
-main(int argc, char** argv){
-  prog_name = argv[0];
+int print_all = 0;
 
-	if(argc == 1)
-		do_ls(".");
-	else
-    while(--argc){
-      printf("%s:\n",*++argv);
-      do_ls(*argv);
+void (*)do_ls(char *dir_name);
+
+char **start;
+
+int main(int argc, char ** argv){
+  parse();
+  argc = ...
+  argv = start
+  /* REDO from BOOK wrong!!! 
+   * + ADD options parse
+   * /
+    while(/*BLAH-BLAH*/)
+    {
+      /* BlAH-BLAH */
+      do_ls(argv);
     }
+
 }
+
+
+/*
+ * parses command options
+ */
+
+void parse(int argc, char **argv){
+  int opt;
+  while(( = getopt(argc,argv, "a:c:l:")) != -1){
+    switch (opt){
+      case 'a':
+        print_all = 1;
+        break;
+      case 'c':
+        do_ls=ls_list;
+        break;
+      case 'a':
+        do_ls=ls_coliumn;
+        break;
+    }
+  }
+  start=optarg;
+}
+        
 
 /* 
  * enumerates files in directory with name dirname
  */
-void do_ls(char *dirname){
+void ls_list(char *dir_name){
   DIR *dir_ptr;
   struct dirent *direntptr;
-  if((dir_ptr = opendir(dirname)) == NULL){
-    fprintf(stderr,"%s:cannot open %s\n",prog_name, dirname);
+  if((dir_ptr = opendir(dir_name)) == NULL){
+    fprintf(stderr,"%s:cannot open %s\n",prog_name, dir_name);
   }
   else{
     while((direntptr = readdir(dir_ptr)) !=NULL){
