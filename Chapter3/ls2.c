@@ -9,12 +9,16 @@ void show_file_info(char *, struct stat *);
 char *uid_to_name(uid_t);
 char *guid_to_name(gid_t);
 
+char *prog_name;
+
 main(int argc, char** argv){
+  prog_name = argv[0];
+
 	if(argc == 1)
 		do_ls(".");
 	else
     while(--argc){
-      printf("%s:\n",*argv);
+      printf("%s:\n",*++argv);
       do_ls(*argv);
     }
 }
@@ -26,7 +30,7 @@ void do_ls(char *dirname){
   DIR *dir_ptr;
   struct dirent *direntptr;
   if((dir_ptr = opendir(dirname)) == NULL){
-    fprintf(stderr,"ls1:cannot open %s\n", dirname);
+    fprintf(stderr,"%s:cannot open %s\n",prog_name, dirname);
   }
   else{
     while((direntptr = readdir(dir_ptr)) !=NULL){
@@ -55,12 +59,12 @@ void show_file_info(char *filename, struct stat *info_p){
   char modestr[11];
   mode_to_letters(info_p->st_mode,modestr);
   printf("%s", modestr);
-  printf("%4d", (int)info_p->st_nlink);
+  printf("%4d ", (int)info_p->st_nlink);
   printf("%-8s", uid_to_name(info_p->st_uid));
   printf("%-8s", gid_to_name(info_p->st_gid));
-  printf("%8ld", (long)info_p->st_size);
-  printf(".12s", 4+citime(&info_p->st_mtime));
-  printf("%s\n", filename);
+  printf("%8ld ", (long)info_p->st_size);
+  printf("%.12s", 4+ctime(&info_p->st_mtime));
+  printf(" %s\n", filename);
 }
 
 /*
@@ -74,7 +78,7 @@ void show_file_info(char *filename, struct stat *info_p){
  * WITHOUT setuid setgid sticky
  */
 void mode_to_letters(int mode, char *str){
-  strncpy(str,"---------",10); // with /0
+  strncpy(str,"----------",11); // with /0
 
 /// TODO
 // search how to write better!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -94,6 +98,7 @@ void mode_to_letters(int mode, char *str){
   if (mode & S_IROTH) str[7] = 'r';
   if (mode & S_IWOTH) str[8] = 'w';
   if (mode & S_IXOTH) str[9] = 'x'; 
+
 }
 
 #include <pwd.h>
@@ -105,7 +110,7 @@ char *uid_to_name(uid_t uid){
   struct passwd *getpwuid(), *pw_ptr;
   static char numstr[10];
 
-  if((pw_ptr = getpwuid) == NULL){
+  if((pw_ptr = getpwuid(uid)) == NULL){
     sprintf(numstr,"% d", uid);
     return numstr;
   }
@@ -120,11 +125,10 @@ char *uid_to_name(uid_t uid){
  * return pointer to grpup_name. using getgrgid(3)
  */
 char *gid_to_name(gid_t gid){
-  struct group *getgrid(), *grp_ptr;
+  struct group *getgrgid(), *grp_ptr;
   static char numstr[10];
 
-  if((grp_ptr = getgrid(gid)) == NULL){
-    //?????
+  if((grp_ptr = getgrgid(gid)) == NULL){   //?????
     snprintf(numstr,sizeof(numstr)/sizeof(numstr[0]),"% d", gid);
     return numstr;
   }
