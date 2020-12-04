@@ -5,20 +5,24 @@
 #include<unistd.h>
 
 void do_stat(char *);
+void do_ls(char *);
+
 void ls_list(char *);
 void ls_column(char *);
+
 void show_file_info(char *, struct stat *);
 char *uid_to_name(uid_t);
 char *guid_to_name(gid_t);
 
 void ls_file(char *);
 void ls_dir(char *);
+int is_dir(char *);
 
 char *prog_name;
 
 int print_all = 0;
 
-void (*do_ls)(char *dir_name);
+void (*ls_type)(char *dir_name);
 
 char **start;
 
@@ -46,7 +50,7 @@ int main(int argc, char ** argv){
  */
 // TODO DONE
 void parse(int argc, char **argv){
-  do_ls = ls_column;
+  ls_type = ls_column;
   int opt;
   while((opt = getopt(argc,argv, "acl")) != -1){
     switch (opt){
@@ -54,24 +58,53 @@ void parse(int argc, char **argv){
         print_all = 1;
         break;
       case 'c':
-        do_ls=ls_column;
+        ls_type=ls_column;
         break;
       case 'l':
-        do_ls=ls_list;
+        ls_type=ls_list;
         break;
     }
   }
 }
         
-//TODO
+void do_ls(char *name){
+  if(is_dir(name)){
+    ls_dir(name);
+  }else{
+    ls_file(name);
+  }
+}
+
+void ls_dir(char *name){
+  ls_type(name);
+}
+
+void ls_file(char *name){
+  if(ls_type==ls_list){
+    do_stat(name);
+  }
+  else{
+    // TODO
+  }
+}
+
+  
 
 
 
+// TODO test
 /*
  * checks  if file  is directory or not
- * 
- *
  */
+int is_dir(char *name){
+  struct stat path_stat;
+  if(stat(name, &path_stat)!=0){
+    return 0;
+  }
+  return S_ISDIR(path_stat.st_mode);
+}
+
+
 
 
 
