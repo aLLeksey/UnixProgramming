@@ -4,58 +4,79 @@
 #include<sys/stat.h>
 #include<unistd.h>
 
-void do_ls(char *);
 void do_stat(char *);
+void ls_list(char *);
+void ls_column(char *);
 void show_file_info(char *, struct stat *);
 char *uid_to_name(uid_t);
 char *guid_to_name(gid_t);
+
+void ls_file(char *);
+void ls_dir(char *);
 
 char *prog_name;
 
 int print_all = 0;
 
-void (*)do_ls(char *dir_name);
+void (*do_ls)(char *dir_name);
 
 char **start;
 
+// TODO DONE
+// (at least looks like this)
 int main(int argc, char ** argv){
+  //optind == 1
   parse();
-  argc = ...
-  argv = start
-  /* REDO from BOOK wrong!!! 
-   * + ADD options parse
-   * /
-    while(/*BLAH-BLAH*/)
-    {
-      /* BlAH-BLAH */
-      do_ls(argv);
-    }
 
+  if(optind == argc){ //no OTHER options, current dir
+    printf("optind=%d, argc=%d\n",optind,argc);
+    do_ls(".");
+    return 0;
+  }
+  // else
+  while(optind<argc){ 
+    //printf("%s\n",argv[optind++]);
+    do_ls(argv[optind++]);
+  }
 }
 
 
 /*
  * parses command options
  */
-
+// TODO DONE
 void parse(int argc, char **argv){
+  do_ls = ls_column;
   int opt;
-  while(( = getopt(argc,argv, "a:c:l:")) != -1){
+  while((opt = getopt(argc,argv, "acl")) != -1){
     switch (opt){
       case 'a':
         print_all = 1;
         break;
       case 'c':
-        do_ls=ls_list;
+        do_ls=ls_column;
         break;
-      case 'a':
-        do_ls=ls_coliumn;
+      case 'l':
+        do_ls=ls_list;
         break;
     }
   }
-  start=optarg;
 }
         
+//TODO
+
+
+
+/*
+ * checks  if file  is directory or not
+ * 
+ *
+ */
+
+
+
+
+
 
 /* 
  * enumerates files in directory with name dirname
@@ -72,6 +93,9 @@ void ls_list(char *dir_name){
     }
     closedir(dir_ptr);
   }
+}
+
+void ls_column(char *dira_name){
 }
 
 void do_stat(char *filename){
