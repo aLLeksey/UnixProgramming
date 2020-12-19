@@ -1,11 +1,11 @@
 #include<stdio.h>
+#include<string.h>
 #include<sys/types.h>
 #include<dirent.h>
 #include<sys/stat.h>
 #include<unistd.h>
 
-void do_stat(char *);
-void do_ls(char *);
+void traverse(char *name);
 
 void ls_list(char *);
 void ls_column(char *);
@@ -14,35 +14,84 @@ void show_file_info(char *, struct stat *);
 char *uid_to_name(uid_t);
 char *guid_to_name(gid_t);
 
-void ls_file(char *);
-void ls_dir(char *);
+
+void parse(int argc,char **argv);
+
 int is_dir(char *);
 
 char *prog_name;
 
 int print_all = 0;
 
-void (*ls_type)(char *dir_name);
+// prints name in column or in list
+void (*process)(char *name);
 
 char **start;
 
 // TODO DONE
 // (at least looks like this)
 int main(int argc, char ** argv){
+  prog_name=argv[0];
+  
   //optind == 1
-  parse();
+  parse(argc,argv);
 
   if(optind == argc){ //no OTHER options, current dir
     printf("optind=%d, argc=%d\n",optind,argc);
-    do_ls(".");
+    traverse(".");
     return 0;
   }
   // else
   while(optind<argc){ 
     //printf("%s\n",argv[optind++]);
-    do_ls(argv[optind++]);
+    traverse(argv[optind++]);
   }
 }
+
+
+// l:
+
+// work with apeerance
+// if list->process list
+// if column->process column
+//
+// //column if(file or dir)->process_column(name)
+// 
+
+// //list   if(file or dir)->process_list(name)
+// 
+/*  
+ *  process=ls_list
+ *  process=ls_coluimn
+ *
+ *  void traverse(char *name){
+ *    if (name == file){
+ *      process(name)
+ *    }
+ *    else(for f in name){
+ *      process(f)
+ *    }
+ *  }
+ *   
+ *
+ *
+
+  ls_list(){
+  }
+  ls_column(){
+  }
+    
+
+
+
+*/
+
+
+
+
+
+
+
 
 
 /*
@@ -50,7 +99,7 @@ int main(int argc, char ** argv){
  */
 // TODO DONE
 void parse(int argc, char **argv){
-  ls_type = ls_column;
+  process = ls_column;
   int opt;
   while((opt = getopt(argc,argv, "acl")) != -1){
     switch (opt){
@@ -58,35 +107,17 @@ void parse(int argc, char **argv){
         print_all = 1;
         break;
       case 'c':
-        ls_type=ls_column;
+        process=ls_column;
         break;
       case 'l':
-        ls_type=ls_list;
+        process=ls_list;
         break;
     }
   }
 }
         
-void do_ls(char *name){
-  if(is_dir(name)){
-    ls_dir(name);
-  }else{
-    ls_file(name);
-  }
-}
 
-void ls_dir(char *name){
-  ls_type(name);
-}
 
-void ls_file(char *name){
-  if(ls_type==ls_list){
-    do_stat(name);
-  }
-  else{
-    // TODO
-  }
-}
 
   
 
@@ -107,31 +138,34 @@ int is_dir(char *name){
 
 
 
-
-
-
-
 /* 
- * enumerates files in directory with name dirname
+ * walkthrought files in directory 'name'
  */
-void ls_list(char *dir_name){
+void traverse(char *name){
+  if(!is_dir(name)){
+    process(name);
+    return;
+  }
+    
   DIR *dir_ptr;
   struct dirent *direntptr;
-  if((dir_ptr = opendir(dir_name)) == NULL){
-    fprintf(stderr,"%s:cannot open %s\n",prog_name, dir_name);
-  }
+  if((dir_ptr = opendir(name)) == NULL){
+    fprintf(stderr,"%s:cannot open %s\n",prog_name, name);
+  } 
   else{
     while((direntptr = readdir(dir_ptr)) !=NULL){
-      do_stat(direntptr -> d_name);
+      process(direntptr -> d_name);
     }
     closedir(dir_ptr);
   }
 }
 
-void ls_column(char *dira_name){
+
+void ls_column(char *file_name){
+  printf("%s\t",file_name);
 }
 
-void do_stat(char *filename){
+void ls_list(char *filename){
   struct stat info;
   if (stat(filename, &info) == -1){
     perror(filename);
