@@ -1,7 +1,11 @@
 ls2.c compilling linking works
+done:
 shows list 
-todo:
+
+TODO:
 show list in order;
+    -add my_malloc(with error and exit)
+    NOT working(seg fault. Compilling)
 show in columns
 
 
