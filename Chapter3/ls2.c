@@ -6,7 +6,6 @@
 #include<unistd.h>
 
 char **a;
-
 void traverse(char *name);
 
 void ls_list(char *);
@@ -155,6 +154,42 @@ void traverse(char *name){
     process(name);
     return;
   }
+  else{
+  }
+  //TODO
+  
+  // ^ create array for all names[dir and not dir]
+  // with type dir/notdir
+  // store all not dir (==files) and sort
+  // print before dirs
+  // print dir name and dirs
+
+  ->alloc(a);
+  //separete function
+
+  //1)store/dirs/notdirs
+  //print files
+  //2)traverse dirs
+  //3)print files for each dir
+
+  //TODO print files beautifly in columns(know terminaol length)
+  /*teminal size
+#include <sys/ioctl.h>
+#include <stdio.h>
+#include <unistd.h>
+
+int main (int argc, char **argv)
+{
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+    printf ("lines %d\n", w.ws_row);
+    printf ("columns %d\n", w.ws_col);
+    return 0;  // make sure your main returns int
+}
+  */
+
+
   
   
   DIR *dir_ptr;
